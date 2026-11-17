@@ -73,12 +73,12 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
   let sheet;
 
   // --- Campos ---
-  const titleInput = h('input.input.title-input', {
+  const titleInput = h('input.field.big', {
     type: 'text', placeholder: 'Título', value: d.title, enterkeyhint: 'done', autocomplete: 'off',
     oninput: (e) => { d.title = e.target.value; },
   });
 
-  const typeSeg = h('div.seg.big', { role: 'group', 'aria-label': 'Tipo' });
+  const typeSeg = h('div.segm', { role: 'group', 'aria-label': 'Tipo' });
   const renderType = () => {
     clear(typeSeg).append(
       h('button', { type: 'button', 'aria-pressed': String(d.type === 'event'), onclick: () => setType('event') }, icon('event', 'sm'), 'Evento'),
@@ -107,8 +107,8 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
     }
     renderWhen(); renderReminders();
   }
-  const dateInput = (date, onchange) => h('input.input', { type: 'date', value: toISODate(date), required: true, onchange: (e) => e.target.value && onchange(fromISODate(e.target.value)) });
-  const timeInput = (date, onchange) => h('input.input', { type: 'time', value: toHM(date), step: 300, onchange: (e) => { if (!e.target.value) return; const [hh, mm] = e.target.value.split(':').map(Number); onchange(hh, mm); } });
+  const dateInput = (date, onchange) => h('input.field', { type: 'date', value: toISODate(date), required: true, onchange: (e) => e.target.value && onchange(fromISODate(e.target.value)) });
+  const timeInput = (date, onchange) => h('input.field', { type: 'time', value: toHM(date), step: 300, onchange: (e) => { if (!e.target.value) return; const [hh, mm] = e.target.value.split(':').map(Number); onchange(hh, mm); } });
 
   function renderWhen() {
     clear(when);
@@ -121,23 +121,23 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
     );
     const keepDur = (newStart) => { const dur = d.end - d.start; d.start = newStart; d.end = new Date(newStart.getTime() + Math.max(dur, 0)); renderWhen(); };
     if (isTask) {
-      const row = h('div.row', h('label.field', h('span.label', 'Fecha límite'), dateInput(d.start, (nd) => { nd.setHours(d.start.getHours(), d.start.getMinutes()); keepDur(nd); })));
-      if (!d.allDay) row.append(h('label.field', h('span.label', 'Hora'), timeInput(d.start, (hh, mm) => { const s = new Date(d.start); s.setHours(hh, mm); keepDur(s); })));
+      const row = h('div.cols', h('label.fld', h('span.fl', 'Fecha límite'), dateInput(d.start, (nd) => { nd.setHours(d.start.getHours(), d.start.getMinutes()); keepDur(nd); })));
+      if (!d.allDay) row.append(h('label.fld', h('span.fl', 'Hora'), timeInput(d.start, (hh, mm) => { const s = new Date(d.start); s.setHours(hh, mm); keepDur(s); })));
       when.append(row);
     } else if (d.allDay) {
-      when.append(h('div.row',
-        h('label.field', h('span.label', 'Desde'), dateInput(d.start, (nd) => keepDur(nd))),
-        h('label.field', h('span.label', 'Hasta'), dateInput(d.end, (nd) => { d.end = nd < d.start ? new Date(d.start) : nd; renderWhen(); })),
+      when.append(h('div.cols',
+        h('label.fld', h('span.fl', 'Desde'), dateInput(d.start, (nd) => keepDur(nd))),
+        h('label.fld', h('span.fl', 'Hasta'), dateInput(d.end, (nd) => { d.end = nd < d.start ? new Date(d.start) : nd; renderWhen(); })),
       ));
     } else {
       when.append(
-        h('div.row',
-          h('label.field', h('span.label', 'Empieza'), dateInput(d.start, (nd) => { nd.setHours(d.start.getHours(), d.start.getMinutes()); keepDur(nd); })),
-          h('label.field', { style: { flex: '0 0 38%' } }, h('span.label', 'Hora'), timeInput(d.start, (hh, mm) => { const s = new Date(d.start); s.setHours(hh, mm); keepDur(s); })),
+        h('div.cols',
+          h('label.fld', h('span.fl', 'Empieza'), dateInput(d.start, (nd) => { nd.setHours(d.start.getHours(), d.start.getMinutes()); keepDur(nd); })),
+          h('label.fld', { style: { flex: '0 0 38%' } }, h('span.fl', 'Hora'), timeInput(d.start, (hh, mm) => { const s = new Date(d.start); s.setHours(hh, mm); keepDur(s); })),
         ),
-        h('div.row',
-          h('label.field', h('span.label', 'Termina'), dateInput(d.end, (nd) => { nd.setHours(d.end.getHours(), d.end.getMinutes()); d.end = nd < d.start ? new Date(d.start.getTime() + 3600000) : nd; renderWhen(); })),
-          h('label.field', { style: { flex: '0 0 38%' } }, h('span.label', 'Hora'), timeInput(d.end, (hh, mm) => { const e = new Date(d.end); e.setHours(hh, mm); if (e <= d.start) e.setTime(d.start.getTime() + 3600000); d.end = e; renderWhen(); })),
+        h('div.cols',
+          h('label.fld', h('span.fl', 'Termina'), dateInput(d.end, (nd) => { nd.setHours(d.end.getHours(), d.end.getMinutes()); d.end = nd < d.start ? new Date(d.start.getTime() + 3600000) : nd; renderWhen(); })),
+          h('label.fld', { style: { flex: '0 0 38%' } }, h('span.fl', 'Hora'), timeInput(d.end, (hh, mm) => { const e = new Date(d.end); e.setHours(hh, mm); if (e <= d.start) e.setTime(d.start.getTime() + 3600000); d.end = e; renderWhen(); })),
         ),
       );
     }
@@ -147,7 +147,7 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
   function recurBlock() {
     const r = d.recur || { freq: 'none' };
     const wrap = h('div');
-    const sel = h('select.select', {
+    const sel = h('select.field', {
       onchange: (e) => {
         d.recur = { ...r, freq: e.target.value, end: r.end || 'never' };
         if (d.recur.freq === 'WEEKLY' && !(d.recur.byDay && d.recur.byDay.length)) d.recur.byDay = [weekdayMon(d.start)];
@@ -156,9 +156,9 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
     },
     [['none', 'No se repite'], ['DAILY', 'Cada día'], ['WEEKLY', 'Cada semana'], ['MONTHLY', `Cada mes (día ${d.start.getDate()})`], ['YEARLY', 'Cada año']]
       .map(([v, l]) => h('option', { value: v, selected: r.freq === v }, l)));
-    wrap.append(h('label.field', h('span.label', 'Repetir'), sel));
+    wrap.append(h('label.fld', h('span.fl', 'Repetir'), sel));
     if (r.freq === 'WEEKLY') {
-      wrap.append(h('div.chips', { style: { marginBottom: '10px' } }, DAY_ES.map((l, i) => h('button.chip', {
+      wrap.append(h('div.chips.days', { style: { marginTop: '10px' } }, DAY_ES.map((l, i) => h('button.chip', {
         type: 'button', 'aria-pressed': String((r.byDay || []).includes(i)), style: { minWidth: '40px', justifyContent: 'center' },
         onclick: () => {
           const set = new Set(r.byDay || []);
@@ -169,12 +169,12 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
       }, l))));
     }
     if (r.freq !== 'none') {
-      const endSel = h('select.select', { onchange: (e) => { d.recur = { ...r, end: e.target.value }; if (d.recur.end === 'until' && !d.recur.until) d.recur.until = toISODate(addDays(d.start, 90)); if (d.recur.end === 'count' && !d.recur.count) d.recur.count = 10; renderWhen(); } },
+      const endSel = h('select.field', { onchange: (e) => { d.recur = { ...r, end: e.target.value }; if (d.recur.end === 'until' && !d.recur.until) d.recur.until = toISODate(addDays(d.start, 90)); if (d.recur.end === 'count' && !d.recur.count) d.recur.count = 10; renderWhen(); } },
         [['never', 'Sin fin'], ['until', 'Hasta una fecha'], ['count', 'Nº de veces']].map(([v, l]) => h('option', { value: v, selected: (r.end || 'never') === v }, l)));
-      const row = h('div.row', h('label.field', h('span.label', 'Termina'), endSel));
-      if (r.end === 'until') row.append(h('label.field', h('span.label', 'Fecha'), h('input.input', { type: 'date', value: r.until, onchange: (e) => { d.recur = { ...r, until: e.target.value }; } })));
-      if (r.end === 'count') row.append(h('label.field', h('span.label', 'Veces'), h('input.input', { type: 'number', min: 1, max: 999, inputmode: 'numeric', value: r.count, onchange: (e) => { d.recur = { ...r, count: Math.max(1, +e.target.value || 1) }; } })));
-      wrap.append(row, h('div.label', { style: { margin: '-2px 0 6px', textTransform: 'none', letterSpacing: '.02em', fontFamily: 'var(--f-mono)', fontWeight: 400 } }, describeRecurrence(d.recur)));
+      const row = h('div.cols', h('label.fld', h('span.fl', 'Termina'), endSel));
+      if (r.end === 'until') row.append(h('label.fld', h('span.fl', 'Fecha'), h('input.field', { type: 'date', value: r.until, onchange: (e) => { d.recur = { ...r, until: e.target.value }; } })));
+      if (r.end === 'count') row.append(h('label.fld', h('span.fl', 'Veces'), h('input.field', { type: 'number', min: 1, max: 999, inputmode: 'numeric', value: r.count, onchange: (e) => { d.recur = { ...r, count: Math.max(1, +e.target.value || 1) }; } })));
+      wrap.append(row, h('p.hint', describeRecurrence(d.recur)));
     }
     return wrap;
   }
@@ -186,16 +186,16 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
     const list = d.reminders;
     const chips = h('div.chips', { style: { marginBottom: '10px' } },
       list.length ? list.map((r, i) => h('button.chip', { type: 'button', 'aria-pressed': 'true', 'aria-label': `Quitar aviso ${reminderLabel(r.minutes, d.allDay)}`, onclick: () => { d.reminders = list.filter((_, j) => j !== i); renderReminders(); } },
-        icon('bell', 'xs'), reminderLabel(r.minutes, d.allDay), h('span.x', '×'))) : h('span.label', { style: { textTransform: 'none', letterSpacing: '.02em' } }, 'Sin avisos'));
+        icon('bell', 'xs'), reminderLabel(r.minutes, d.allDay), h('span.x', '×'))) : h('p.hint', { style: { margin: '0' } }, 'Sin avisos'));
     const presets = (d.allDay ? REMINDER_PRESETS_ALLDAY : REMINDER_PRESETS_TIMED).filter((p) => !list.some((r) => r.minutes === p.minutes));
     const add = h('div.chips', presets.map((p) => h('button.chip.add', {
       type: 'button', disabled: list.length >= 5,
       onclick: () => { if (d.reminders.length >= 5) return toast('Máximo 5 avisos'); d.reminders = [...list, { method: 'popup', minutes: p.minutes }].sort((a, b) => a.minutes - b.minutes); renderReminders(); },
     }, '+ ', p.label)));
     // Personalizado
-    const num = h('input.input', { type: 'number', min: 0, max: 40320, inputmode: 'numeric', placeholder: 'Nº', style: { flex: '0 0 30%' } });
-    const unit = h('select.select', {}, [['1', 'minutos antes'], ['60', 'horas antes'], ['1440', 'días antes'], ['10080', 'semanas antes']].map(([v, l]) => h('option', { value: v }, l)));
-    const custom = h('div.row', { style: { marginTop: '10px' } }, num, unit, h('button.btn', {
+    const num = h('input.field', { type: 'number', min: 0, max: 40320, inputmode: 'numeric', placeholder: 'Nº', style: { flex: '0 0 30%' } });
+    const unit = h('select.field', {}, [['1', 'minutos antes'], ['60', 'horas antes'], ['1440', 'días antes'], ['10080', 'semanas antes']].map(([v, l]) => h('option', { value: v }, l)));
+    const custom = h('div.cols', { style: { marginTop: '12px' } }, num, unit, h('button.btn.ghost', {
       type: 'button', style: { flex: '0 0 auto' }, 'aria-label': 'Añadir aviso personalizado',
       onclick: () => {
         const m = Math.round((+num.value || 0) * +unit.value);
@@ -217,24 +217,24 @@ export async function openEditor({ item = null, draft = null, scope = null } = {
   function renderColors() {
     clear(colorBox).append(
       h('div.swatches', COLORS.map((c) => h('button.swatch', {
-        type: 'button', '--c': c.hex, 'aria-label': c.name, 'aria-pressed': String((d.colorId || '') === c.id),
+        type: 'button', '--c': colorHex(c.id), 'aria-label': c.name, 'aria-pressed': String((d.colorId || '') === c.id),
         onclick: () => { d.colorId = c.id; renderColors(); },
       }))),
       h('div.swatch-name', colorName(d.colorId), (d.colorId || '') === '' ? ' · color del calendario' : ''),
     );
   }
 
-  const sectionRule = (n, label) => h('div.section-rule', h('span.n', n), h('span.label', label));
+  const sectionRule = (n, label) => h('h3.grp', label);
   body.append(
     typeSeg,
-    h('div', { style: { height: '12px' } }),
+    h('div', { style: { height: '14px' } }),
     titleInput,
     sectionRule('01', 'Cuándo'), when,
     sectionRule('02', 'Avisos'), remBox,
     sectionRule('03', 'Color'), colorBox,
     sectionRule('04', 'Detalles'),
-    h('label.field', h('span.label', 'Ubicación'), h('input.input', { type: 'text', value: d.location, placeholder: 'Dirección o lugar', autocomplete: 'off', oninput: (e) => { d.location = e.target.value; } })),
-    h('label.field', h('span.label', 'Notas'), h('textarea.textarea', { placeholder: 'Detalles, enlaces, lista…', oninput: (e) => { d.notes = e.target.value; } }, d.notes)),
+    h('label.fld', h('span.fl', 'Ubicación'), h('input.field', { type: 'text', value: d.location, placeholder: 'Dirección o lugar', autocomplete: 'off', oninput: (e) => { d.location = e.target.value; } })),
+    h('label.fld', h('span.fl', 'Notas'), h('textarea.field', { placeholder: 'Detalles, enlaces, lista…', oninput: (e) => { d.notes = e.target.value; } }, d.notes)),
   );
   renderType(); renderWhen(); renderReminders(); renderColors();
 
@@ -296,31 +296,31 @@ export function openDetail(item) {
   })();
   const rows = [];
   if (item.location) {
-    rows.push(h('div.r', icon('pin', 'sm'), h('a', { href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`, target: '_blank', rel: 'noopener' }, item.location)));
+    rows.push(h('div.fact', icon('pin', 'sm'), h('a', { href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`, target: '_blank', rel: 'noopener' }, item.location)));
   }
   const rec = item.recurringEventId ? 'Evento repetido' : item.recurrence ? describeRecurrence(parseRecurrence(item.recurrence)) : null;
-  if (rec) rows.push(h('div.r', icon('repeat', 'sm'), h('span', rec)));
+  if (rec) rows.push(h('div.fact', icon('repeat', 'sm'), h('span', rec)));
   const rems = item.useDefaultReminders ? null : item.reminders;
-  rows.push(h('div.r', icon('bell', 'sm'), h('span',
+  rows.push(h('div.fact', icon('bell', 'sm'), h('span',
     rems && rems.length ? rems.map((r) => reminderLabel(r.minutes, item.allDay)).join(' · ') : item.useDefaultReminders ? 'Avisos por defecto del calendario' : 'Sin avisos',
-    item.remBoth ? h('span.tag', { style: { marginLeft: '8px' } }, 'Los dos') : null)));
-  if (item.notes) rows.push(h('div.r', icon('notes', 'sm'), h('div.notes', stripHtml(item.notes))));
-  rows.push(h('div.r', icon('palette', 'sm'), h('span', colorName(item.colorId))));
+    item.remBoth ? h('span.tag', 'Los dos') : null)));
+  if (item.notes) rows.push(h('div.fact', icon('notes', 'sm'), h('div.notes', stripHtml(item.notes))));
+  rows.push(h('div.fact', icon('palette', 'sm'), h('span', colorName(item.colorId))));
 
   let s;
   const body = h('div',
-    h('div.detail-head', { '--c': c }, h('div.cbar'),
+    h('div.detail', { '--c': c }, h('div.bar'),
       h('div', { style: { flex: 1, minWidth: 0 } },
-        h('span.tag', { style: { display: 'inline-block', marginBottom: '6px', fontFamily: 'var(--f-display)', fontWeight: 600, fontSize: '11px', letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink-3)' } }, item.type === 'task' ? (item.done ? 'Tarea · hecha' : 'Tarea') : 'Evento'),
+        h('div.kind', item.type === 'task' ? (item.done ? 'Tarea · hecha' : 'Tarea') : 'Evento'),
         h('h3', item.title),
         h('div.when', whenTxt),
       )),
-    h('div.detail-list', rows),
+    h('div.facts', rows),
   );
   const foot = h('div', { style: { display: 'contents' } },
     h('button.btn.danger', { type: 'button', style: { flex: '0 0 auto' }, 'aria-label': 'Eliminar', onclick: async () => { if (await confirmDelete(item)) s.close(); } }, icon('trash', 'sm')),
     item.type === 'task'
-      ? h('button.btn', { type: 'button', onclick: async () => { s.close(); await toggleDoneWithUndo(item); } }, icon('check', 'sm'), item.done ? 'Reabrir' : 'Hecha')
+      ? h('button.btn.ghost', { type: 'button', onclick: async () => { s.close(); await toggleDoneWithUndo(item); } }, icon('check', 'sm'), item.done ? 'Reabrir' : 'Hecha')
       : null,
     h('button.btn.primary', { type: 'button', onclick: () => { s.close(); openEditor({ item }); } }, icon('edit', 'sm'), 'Editar'),
   );

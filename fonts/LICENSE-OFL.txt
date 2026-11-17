@@ -1,4 +1,4 @@
-Copyright 2017 The Barlow Project Authors (https://github.com/jpt/barlow)
+Copyright 2020 The Fraunces Project Authors (github.com/undercasetype/Fraunces)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
@@ -93,5 +93,6 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ---
-IBM Plex Mono: Copyright © 2017 IBM Corp., licensed under the SIL Open Font License, Version 1.1.
-Barlow / Barlow Condensed: Copyright 2017 The Barlow Project Authors, SIL Open Font License, Version 1.1.
+Fraunces: Copyright 2020 The Fraunces Project Authors, SIL Open Font License, Version 1.1.
+DM Sans: Copyright 2014 The DM Sans Project Authors, SIL Open Font License, Version 1.1.
+Chakra Petch: Copyright 2018 The Chakra Petch Project Authors, SIL Open Font License, Version 1.1.

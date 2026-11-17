@@ -21,10 +21,16 @@ const cache = new Map(); // clave -> {t, items}
 const TTL = 45_000;
 let pending = 0;
 
+let busyTimer;
 function loading(delta) {
+  const was = pending > 0;
   pending += delta;
-  const el = document.getElementById('loading');
-  if (el) el.hidden = pending <= 0;
+  const now = pending > 0;
+  if (was === now) return;
+  // La pastilla de estado muestra «Sincronizando» solo si la espera se nota
+  clearTimeout(busyTimer);
+  if (now) busyTimer = setTimeout(() => emit('busy', true), 250);
+  else emit('busy', false);
 }
 
 async function guard(fn) {

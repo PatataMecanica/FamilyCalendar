@@ -2,12 +2,14 @@ import { h, clear } from '../ui/dom.js';
 import { fetchRange, fetchOverdue } from '../data.js';
 import { occursOn, sortItems } from '../model.js';
 import {
-  startOfDay, addDays, DAYS_LONG, MONTHS, weekdayMon, isoWeek, fmtDayLabel, MONTHS_SHORT, DAYS_SHORT, toHM,
+  startOfDay, addDays, DAYS_LONG, MONTHS, weekdayMon, isoWeek, fmtDayLabel, toHM, cap,
 } from '../dates.js';
-import { itemCard, emptyState } from './common.js';
+import { itemCard, emptyState, list } from './common.js';
 import { openQuick } from '../ui/quick.js';
 
 let span = 14;
+
+const plural = (n, one, many) => `${n === 1 ? one : many}`;
 
 export async function renderUpcoming(root) {
   const now = new Date();
@@ -18,61 +20,55 @@ export async function renderUpcoming(root) {
   const todays = items.filter((i) => occursOn(i, today));
   const evCount = todays.filter((i) => i.type === 'event').length;
   const taskCount = todays.filter((i) => i.type === 'task' && !i.done).length;
+  const next = items.find((i) => i.type === 'event' && !i.allDay && i.start > now);
 
-  root.append(
-    h('section.hero',
-      h('div.big', String(today.getDate()).padStart(2, '0')),
-      h('div.plate-info',
-        h('div.dow', DAYS_LONG[weekdayMon(today)]),
-        h('div.month', `${MONTHS[today.getMonth()]} ${today.getFullYear()}`),
-        h('div.stamp', `N.º ${String(today.getDate()).padStart(2, '0')} · ${MONTHS_SHORT[today.getMonth()]} · SEM ${isoWeek(today)}`),
-      ),
+  // Tarjeta principal: el día de hoy
+  root.append(h('section.card.hero',
+    h('div.label', `${DAYS_LONG[weekdayMon(today)]} · semana ${isoWeek(today)}`),
+    h('div.big', String(today.getDate()), h('small', ` de ${MONTHS[today.getMonth()]}`)),
+    h('div.sub', next
+      ? `Siguiente: ${next.title} · ${fmtDayLabel(next.start, today).toLowerCase()} a las ${toHM(next.start)}`
+      : 'Nada más con hora por ahora'),
+    h('div.stats',
+      h('span', h('i.mk'), h('b', String(evCount)), plural(evCount, 'evento hoy', 'eventos hoy')),
+      h('span', h('i.mk.task'), h('b', String(taskCount)), plural(taskCount, 'tarea', 'tareas')),
+      overdue.length ? h('span.late', h('b', String(overdue.length)), plural(overdue.length, 'vencida', 'vencidas')) : null,
     ),
-    h('div.summary',
-      h('span.legend', h('span.sq'), h('b', String(evCount)), evCount === 1 ? 'evento' : 'eventos'),
-      h('span.legend', h('span.sq.task'), h('b', String(taskCount)), taskCount === 1 ? 'tarea' : 'tareas'),
-      overdue.length ? h('span.legend', { style: { color: 'var(--rust)' } }, h('b', { style: { color: 'var(--rust)' } }, String(overdue.length)), 'vencidas') : null,
-    ),
-  );
+  ));
 
   if (overdue.length) {
-    root.append(h('section.overdue-box',
-      h('div.hd', h('span.label', 'Vencidas'), h('div.hazard')),
-      overdue.map((it) => itemCard(it, { now })),
+    root.append(h('section.card.notice',
+      h('h2', 'Vencidas'),
+      h('div.sub', { style: { marginBottom: '12px' } }, 'Tareas sin completar de días pasados'),
+      list(overdue.map((it) => itemCard(it, { now }))),
     ));
   }
 
   for (let i = 0; i < span; i++) {
     const day = addDays(today, i);
-    const list = items.filter((it) => occursOn(it, day)).sort(sortItems);
-    if (!list.length && i !== 0) continue;
-    const group = h('section.day-group');
-    group.append(h('div.day-head',
-      h(`span.d${i === 0 ? '.today' : ''}`, fmtDayLabel(day, today)),
-      h('span.n', `${DAYS_SHORT[weekdayMon(day)]} ${day.getDate()} ${MONTHS_SHORT[day.getMonth()]}`),
-      h('span.rule'),
-      h('span.cnt', list.length ? String(list.length).padStart(2, '0') : ''),
+    const dayItems = items.filter((it) => occursOn(it, day)).sort(sortItems);
+    if (!dayItems.length && i !== 0) continue;
+    root.append(h(`div.section${i === 0 ? '.today' : ''}`,
+      h('h2', fmtDayLabel(day, today)),
+      h('span.when', i < 2 ? cap(`${DAYS_LONG[weekdayMon(day)]} ${day.getDate()}`) : `${day.getDate()} de ${MONTHS[day.getMonth()]}`),
     ));
-    if (!list.length) {
-      group.append(h('button.empty', { type: 'button', style: { width: '100%', margin: '4px 0 0', padding: '18px' }, onclick: () => openQuick({ date: day }) }, h('span.label', 'Día despejado'), 'Toca para añadir algo'));
+    if (!dayItems.length) {
+      root.append(list(h('button.empty', { type: 'button', onclick: () => openQuick({ date: day }) }, h('b', 'Día despejado'), 'Toca para añadir algo')));
+      continue;
     }
+    const rows = [];
     let nowPlaced = i !== 0;
-    for (const it of list) {
-      if (!nowPlaced && !it.allDay && it.start > now) {
-        group.append(h('div.now-line', `AHORA ${toHM(now)}`));
-        nowPlaced = true;
-      }
-      group.append(itemCard(it, { day, now }));
+    for (const it of dayItems) {
+      if (!nowPlaced && !it.allDay && it.start > now) { rows.push(h('div.nowline', `Ahora · ${toHM(now)}`)); nowPlaced = true; }
+      rows.push(itemCard(it, { day, now }));
     }
-    if (!nowPlaced && list.some((it) => !it.allDay)) group.append(h('div.now-line', `AHORA ${toHM(now)}`));
-    root.append(group);
+    if (!nowPlaced && dayItems.some((it) => !it.allDay)) rows.push(h('div.nowline', `Ahora · ${toHM(now)}`));
+    root.append(list(rows));
   }
 
-  if (items.length === 0 && !overdue.length) {
-    root.append(emptyState('Sin planes', `Nada en los próximos ${span} días.`));
-  }
+  if (items.length === 0 && !overdue.length) root.append(list(emptyState('Sin planes', `Nada en los próximos ${span} días.`)));
 
-  root.append(h('button.btn.ghost.more-btn', { type: 'button', onclick: () => { span += 14; renderUpcoming(root); } }, `Ver ${span + 14} días`));
+  root.append(h('button.btn.ghost.more', { type: 'button', onclick: () => { span += 14; renderUpcoming(root); } }, `Ver ${span + 14} días`));
 }
 
 export function resetUpcoming() { span = 14; }

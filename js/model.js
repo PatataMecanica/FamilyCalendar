@@ -3,23 +3,26 @@
 import { fromISODate, toISODate, toRFC3339, addDays, localTimeZone } from './dates.js';
 import { buildRecurrence } from './recurrence.js';
 
-// Los 11 colores de evento de Google (colorId), reinterpretados con una paleta industrial.
-// En Google Calendar se verán con sus colores originales (tono parecido).
+// Los 11 colores de evento de Google (colorId). El tono concreto lo pone cada estilo
+// con las variables CSS --ev-N (css/styles.css); aquí solo van el id y el nombre.
+// En Google Calendar se ven con el color equivalente de Google.
 export const COLORS = [
-  { id: '', name: 'Latón', hex: '#C8A15A', note: 'color del calendario' },
-  { id: '11', name: 'Óxido', hex: '#C0563A' },
-  { id: '6', name: 'Cobre', hex: '#C47A45' },
-  { id: '4', name: 'Arcilla', hex: '#C9917F' },
-  { id: '5', name: 'Amarillo señal', hex: '#E0B437' },
-  { id: '10', name: 'Verde militar', hex: '#5F7350' },
-  { id: '2', name: 'Salvia', hex: '#91A285' },
-  { id: '7', name: 'Petróleo', hex: '#3F7F84' },
-  { id: '9', name: 'Azul acero', hex: '#4E6D93' },
-  { id: '1', name: 'Pizarra', hex: '#8790AE' },
-  { id: '3', name: 'Burdeos', hex: '#8E4A5E' },
-  { id: '8', name: 'Grafito', hex: '#74777C' },
+  { id: '', name: 'Calendario', note: 'color del calendario' },
+  { id: '1', name: 'Lavanda' },
+  { id: '2', name: 'Salvia' },
+  { id: '3', name: 'Uva' },
+  { id: '4', name: 'Flamenco' },
+  { id: '5', name: 'Plátano' },
+  { id: '6', name: 'Mandarina' },
+  { id: '7', name: 'Pavo real' },
+  { id: '8', name: 'Grafito' },
+  { id: '9', name: 'Arándano' },
+  { id: '10', name: 'Albahaca' },
+  { id: '11', name: 'Tomate' },
 ];
-export const colorHex = (id) => (COLORS.find((c) => c.id === (id || '')) || COLORS[0]).hex;
+const known = (id) => COLORS.some((c) => c.id === (id || ''));
+/** Valor CSS del color de un evento (se usa en la variable --c) */
+export const colorHex = (id) => `var(--ev-${known(id) && id ? id : 0})`;
 export const colorName = (id) => (COLORS.find((c) => c.id === (id || '')) || COLORS[0]).name;
 
 const TASK_OPEN = '☐ ';

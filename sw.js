@@ -1,16 +1,16 @@
 // Service worker: guarda la "carcasa" de la app para que abra al instante y sin conexión.
 // Las llamadas a Google (API y acceso) nunca se cachean.
-const VERSION = 'sa-cal-v1.0.0';
+const VERSION = 'sa-cal-v1.1.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/tokens.css', 'css/base.css', 'css/components.css', 'css/views.css',
+  'css/styles.css', 'js/boot-design.js',
   'js/app.js', 'js/api.js', 'js/auth.js', 'js/config.js', 'js/data.js', 'js/dates.js', 'js/demo.js',
   'js/model.js', 'js/quickadd.js', 'js/recurrence.js', 'js/reminders-sync.js', 'js/store.js', 'js/templates.js',
   'js/ui/dom.js', 'js/ui/editor.js', 'js/ui/quick.js', 'js/ui/sheet.js', 'js/ui/toast.js',
   'js/views/calendar.js', 'js/views/common.js', 'js/views/search.js', 'js/views/settings.js', 'js/views/upcoming.js',
-  'fonts/barlow-condensed-latin-500-normal.woff2', 'fonts/barlow-condensed-latin-600-normal.woff2', 'fonts/barlow-condensed-latin-700-normal.woff2',
-  'fonts/barlow-latin-400-normal.woff2', 'fonts/barlow-latin-500-normal.woff2', 'fonts/barlow-latin-600-normal.woff2',
-  'fonts/ibm-plex-mono-latin-400-normal.woff2', 'fonts/ibm-plex-mono-latin-500-normal.woff2',
+  'fonts/fraunces-latin-400-normal.woff2', 'fonts/fraunces-latin-400-italic.woff2', 'fonts/fraunces-latin-500-normal.woff2', 'fonts/fraunces-latin-600-normal.woff2',
+  'fonts/dm-sans-latin-400-normal.woff2', 'fonts/dm-sans-latin-500-normal.woff2', 'fonts/dm-sans-latin-600-normal.woff2',
+  'fonts/chakra-petch-latin-500-normal.woff2', 'fonts/chakra-petch-latin-600-normal.woff2',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 

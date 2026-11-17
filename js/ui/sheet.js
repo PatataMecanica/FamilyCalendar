@@ -51,6 +51,7 @@ export function openSheet({ title = '', body, foot = null, onClose, headActions 
     closed = true;
     const i = stack.indexOf(api); if (i >= 0) stack.splice(i, 1);
     if (!fromPop) releaseEntry();
+    document.body.classList.toggle('sheet-open', stack.length > 0);
     scrim.classList.remove('open'); sheet.classList.remove('open');
     sheet.style.transform = '';
     setTimeout(() => { scrim.remove(); sheet.remove(); }, 320);
@@ -78,6 +79,7 @@ export function openSheet({ title = '', body, foot = null, onClose, headActions 
   const api = { close, el: sheet, body: bodyEl };
   stack.push(api);
   ensureEntry();
+  document.body.classList.add('sheet-open');
   return api;
 }
 
@@ -96,7 +98,7 @@ export function choose(title, options) {
     const s = openSheet({
       title,
       body: h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
-        options.map((o) => h(`button.btn.block${o.danger ? '.danger' : ''}${o.primary ? '.primary' : ''}`, {
+        options.map((o) => h(`button.btn.block${o.danger ? '.danger' : o.primary ? '' : '.ghost'}`, {
           onclick: () => { picked = o.key; s.close(); },
         }, o.label)),
       ),
