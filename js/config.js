@@ -8,7 +8,7 @@
 // y los guarda solo en el dispositivo.
 
 export const CONFIG = {
-  CLIENT_ID: 'PEGA_AQUI_TU_CLIENT_ID.apps.googleusercontent.com',
+  CLIENT_ID: '350276229368-e5eao9pga82uhmphlh53qtju020eb5n2.apps.googleusercontent.com',
 
   // Permisos mínimos: gestionar eventos + ver la lista de calendarios para elegir el compartido.
   SCOPES: [
