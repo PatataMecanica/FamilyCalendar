@@ -15,9 +15,9 @@ export function openQuick(ctx = {}) {
   let s;
   const baseDay = ctx.date ? startOfDay(ctx.date) : null;
 
-  const preview = h('div.quick-preview.hint', 'Ej.: «cena con Laura viernes 21h» · «tarea pagar seguro el 25»');
+  const preview = h('div.preview.hint', 'Ej.: «cena con Laura viernes 21h» · «tarea pagar seguro el 25»');
   const go = h('button.go', { type: 'submit', disabled: true, 'aria-label': 'Crear' }, icon('check'));
-  const input = h('input.input', {
+  const input = h('input.field', {
     type: 'text', placeholder: 'Escribe y listo…', autocomplete: 'off', autocapitalize: 'sentences', enterkeyhint: 'done',
     oninput: update,
   });
@@ -36,15 +36,14 @@ export function openQuick(ctx = {}) {
     const txt = input.value.trim();
     go.disabled = !txt;
     clear(preview);
-    if (!txt) { preview.className = 'quick-preview hint'; preview.textContent = 'Ej.: «cena con Laura viernes 21h» · «tarea pagar seguro el 25»'; parsed = null; return; }
-    preview.className = 'quick-preview';
+    if (!txt) { preview.className = 'preview hint'; preview.textContent = 'Ej.: «cena con Laura viernes 21h» · «tarea pagar seguro el 25»'; parsed = null; return; }
+    preview.className = 'preview';
     parsed = parseQuickAdd(txt);
     const d = draftFromParsed(parsed);
     preview.append(
       h('span.k', d.type === 'task' ? 'Tarea' : 'Evento'),
-      h('span.v', d.title || '—'),
-      h('span.k', '·'),
-      h('span.v', `${fmtDayLabel(d.start)}${d.allDay ? '' : ` ${toHM(d.start)}–${toHM(d.end)}`}`),
+      h('b', d.title || '—'),
+      h('span', `· ${fmtDayLabel(d.start)}${d.allDay ? '' : `, ${toHM(d.start)}–${toHM(d.end)}`}`),
     );
   }
 
@@ -64,10 +63,10 @@ export function openQuick(ctx = {}) {
     }
   }
 
-  const form = h('form.quick-input-wrap', { onsubmit: submit }, input, go);
+  const form = h('form.quick', { onsubmit: submit }, input, go);
 
   const tpls = getTemplates();
-  const tplRow = h('div.tpl-row', tpls.map((t) => h('button.tpl', {
+  const tplRow = h('div.tpls', tpls.map((t) => h('button.tpl', {
     type: 'button', '--c': colorHex(t.colorId),
     onclick: () => {
       s.close();
@@ -81,7 +80,7 @@ export function openQuick(ctx = {}) {
       } else { over.start = new Date(day); over.end = new Date(day); }
       openEditor({ draft: over });
     },
-  }, h('span.nm', t.name), h('span.sub', t.type === 'task' ? 'TAREA' : t.allDay ? 'TODO EL DÍA' : `${t.duration || 60} MIN`))));
+  }, h('span.nm', h('i'), t.name), h('span.sub', t.type === 'task' ? 'Tarea' : t.allDay ? 'Todo el día' : `${t.duration || 60} min`))));
 
   const openFull = (type) => {
     s.close();
@@ -95,14 +94,14 @@ export function openQuick(ctx = {}) {
   };
 
   const body = h('div',
-    h('div.section-rule', h('span.n', 'A'), h('span.label', 'Alta rápida')),
+    h('span.fl', { style: { marginTop: '4px' } }, 'Alta rápida'),
     form, preview,
-    tpls.length ? h('div.section-rule', h('span.n', 'B'), h('span.label', 'Plantillas')) : null,
+    tpls.length ? h('span.fl', 'Plantillas') : null,
     tpls.length ? tplRow : null,
-    h('div.section-rule', h('span.n', 'C'), h('span.label', 'Completo')),
-    h('div.type-cards',
-      h('button.type-card', { type: 'button', onclick: () => openFull('event') }, icon('event'), h('span.nm', 'Evento'), h('small', 'Con hora o todo el día')),
-      h('button.type-card.task', { type: 'button', onclick: () => openFull('task') }, icon('task'), h('span.nm', 'Tarea'), h('small', 'Con casilla y fecha límite')),
+    h('span.fl', 'Completo'),
+    h('div.types',
+      h('button.type', { type: 'button', onclick: () => openFull('event') }, icon('event'), h('span.nm', 'Evento'), h('small', 'Con hora o todo el día')),
+      h('button.type.task', { type: 'button', onclick: () => openFull('task') }, icon('task'), h('span.nm', 'Tarea'), h('small', 'Con casilla y fecha límite')),
     ),
   );
   s = openSheet({ title: baseDay ? `Nuevo · ${fmtDayLabel(baseDay)}` : 'Nuevo', body });

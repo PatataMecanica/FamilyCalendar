@@ -8,62 +8,89 @@ import { COLORS, colorHex, reminderLabel, REMINDER_PRESETS_TIMED, REMINDER_PRESE
 import { defaultReminders } from '../ui/editor.js';
 import { signOut } from '../auth.js';
 
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.1.0';
+
+// Estilos y modos, igual que en Gastos S&A
+export const ESTILOS = { pastel: 'Pastel', neon: 'Neón', retro: 'Ochentas' };
+export const TEMAS = { auto: 'Sistema', light: 'Claro', dark: 'Oscuro' };
+const darkMq = matchMedia('(prefers-color-scheme: dark)');
+
+export function getDesign() {
+  let tema = store.get('tema');
+  if (tema == null) { tema = store.get('theme', 'auto'); if (TEMAS[tema]) store.set('tema', tema); store.remove('theme'); }
+  if (!TEMAS[tema]) tema = 'auto';
+  let estilo = store.get('estilo', 'pastel');
+  if (!ESTILOS[estilo]) estilo = 'pastel';
+  return { tema, estilo };
+}
+
+/** Pone data-theme y data-style en <html> y ajusta el color de la barra del navegador */
+export function applyDesign() {
+  const { tema, estilo } = getDesign();
+  const root = document.documentElement;
+  root.dataset.theme = tema === 'auto' ? (darkMq.matches ? 'dark' : 'light') : tema;
+  root.dataset.style = estilo;
+  const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+  if (bg) document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.content = bg; });
+}
+darkMq.addEventListener?.('change', applyDesign);
 
 export function renderSettings(root, rerender) {
   clear(root);
-  const row = (ic, title, sub, onclick, extra = {}) => h(`button.set-row${extra.danger ? '.danger' : ''}`, { type: 'button', onclick },
-    icon(ic), h('div.txt', title, sub ? h('small', sub) : null), extra.val ? h('span.val', extra.val) : null, icon('right', 'sm'));
+  const row = (ic, title, sub, onclick, extra = {}) => h(`button.mrow${extra.danger ? '.danger' : ''}`, { type: 'button', onclick },
+    icon(ic), h('div.txt', title, sub ? h('small', sub) : null), icon('right', 'sm go'));
+  const section = (title) => h('div.section', h('h2', title));
 
-  const theme = store.get('theme', 'auto');
+  const { tema, estilo } = getDesign();
   const tpls = getTemplates();
+  const setDesign = (k, v) => { store.set(k, v); applyDesign(); rerender(); };
 
   root.append(
-    h('section.set-group', h('span.label', 'Calendario'),
-      h('div.set-card',
-        row('cal', state.calName || 'Calendario', state.demo ? 'Modo demostración' : 'Toca para cambiar de calendario', () => emit('pick-calendar')),
-        state.demo ? null : row('link', 'Enlace de configuración', 'Para configurar el otro móvil sin copiar nada', shareSetup),
-        state.demo ? null : row('sync', 'Sincronizar ahora', 'Recarga los datos y aplica avisos compartidos', () => emit('sync')),
-      )),
-    h('section.set-group', h('span.label', 'Plantillas rápidas'),
-      h('div.set-card',
-        tpls.map((t, i) => h('button.set-row', { type: 'button', onclick: () => editTemplate(i, rerender) },
-          h('span.tpl-chip-color', { '--c': colorHex(t.colorId) }),
-          h('div.txt', t.name, h('small', t.type === 'task' ? 'Tarea' : t.allDay ? 'Evento · todo el día' : `Evento · ${t.duration || 60} min${t.hour != null ? ` · ${t.hour}:00` : ''}`)),
-          icon('right', 'sm'))),
-        h('button.set-row', { type: 'button', style: { color: 'var(--accent)' }, onclick: () => editTemplate(-1, rerender) }, icon('plus'), h('div.txt', 'Nueva plantilla')),
-      )),
-    h('section.set-group', h('span.label', 'Avisos por defecto'),
-      h('div.set-card',
-        row('bell', 'Eventos con hora', defaultReminders(false).map((r) => reminderLabel(r.minutes, false)).join(' · ') || 'Sin avisos', () => editDefaults(false, rerender)),
-        row('bell', 'Todo el día y tareas', defaultReminders(true).map((r) => reminderLabel(r.minutes, true)).join(' · ') || 'Sin avisos', () => editDefaults(true, rerender)),
-        h('div.set-row',
-          icon('bolt'),
-          h('div.txt', 'Para los dos por defecto', h('small', 'Activa «Para los dos» en eventos nuevos')),
-          h('label.switch', h('input', { type: 'checkbox', checked: store.get('defRemBoth', true), onchange: (e) => store.set('defRemBoth', e.target.checked) }), h('span.track'), h('span.knob'))),
-      )),
-    h('section.set-group', h('span.label', 'Apariencia'),
-      h('div.seg', { role: 'group', 'aria-label': 'Tema' }, [['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, l]) => h('button', {
-        type: 'button', 'aria-pressed': String(theme === k),
-        onclick: () => { store.set('theme', k); applyTheme(); rerender(); },
-      }, l)))),
-    h('section.set-group', h('span.label', 'Sesión'),
-      h('div.set-card',
-        state.demo
-          ? row('out', 'Salir de la demo', null, () => { location.href = location.pathname; }, { danger: true })
-          : row('out', 'Cerrar sesión', 'Revoca el acceso en este dispositivo', async () => {
-            const ok = await choose('¿Cerrar sesión?', [{ key: 'y', label: 'Cerrar sesión', danger: true }, { key: 'n', label: 'Cancelar' }]);
-            if (ok === 'y') { signOut(); location.reload(); }
-          }, { danger: true }),
-      )),
-    h('p.about', `CALENDARIO S&A · v${APP_VERSION}`, h('br'), 'Datos en vuestro Google Calendar · Nada se guarda fuera de él', h('br'), 'Preferencias guardadas solo en este dispositivo'),
+    section('Apariencia'),
+    h('div.card',
+      h('span.fl', { style: { marginTop: '0' } }, 'Estilo'),
+      h('div.segm.three.styles', { role: 'group', 'aria-label': 'Estilo' }, Object.entries(ESTILOS).map(([k, n]) => h(`button${estilo === k ? '.on' : ''}`, {
+        type: 'button', 'aria-pressed': String(estilo === k), onclick: () => setDesign('estilo', k),
+      }, h(`i.sw.${k}`), n))),
+      h('span.fl', 'Modo'),
+      h('div.segm.three', { role: 'group', 'aria-label': 'Modo' }, Object.entries(TEMAS).map(([k, n]) => h(`button${tema === k ? '.on' : ''}`, {
+        type: 'button', 'aria-pressed': String(tema === k), onclick: () => setDesign('tema', k),
+      }, n))),
+    ),
+    section('Calendario'),
+    h('div.card.menu',
+      row('cal', state.calName || 'Calendario', state.demo ? 'Modo demostración' : 'Toca para cambiar de calendario', () => emit('pick-calendar')),
+      state.demo ? null : row('link', 'Enlace de configuración', 'Para configurar el otro móvil sin copiar nada', shareSetup),
+      state.demo ? null : row('sync', 'Sincronizar ahora', 'Recarga los datos y aplica avisos compartidos', () => emit('sync')),
+    ),
+    section('Plantillas rápidas'),
+    h('div.card.menu',
+      tpls.map((t, i) => h('button.mrow', { type: 'button', onclick: () => editTemplate(i, rerender) },
+        h('span.dot', { '--c': colorHex(t.colorId) }),
+        h('div.txt', t.name, h('small', t.type === 'task' ? 'Tarea' : t.allDay ? 'Evento · todo el día' : `Evento · ${t.duration || 60} min${t.hour != null ? ` · ${t.hour}:00` : ''}`)),
+        icon('right', 'sm go'))),
+      h('button.mrow.add', { type: 'button', onclick: () => editTemplate(-1, rerender) }, icon('plus'), h('div.txt', 'Nueva plantilla')),
+    ),
+    section('Avisos por defecto'),
+    h('div.card.menu',
+      row('bell', 'Eventos con hora', defaultReminders(false).map((r) => reminderLabel(r.minutes, false)).join(' · ') || 'Sin avisos', () => editDefaults(false, rerender)),
+      row('bell', 'Todo el día y tareas', defaultReminders(true).map((r) => reminderLabel(r.minutes, true)).join(' · ') || 'Sin avisos', () => editDefaults(true, rerender)),
+      h('div.mrow',
+        icon('bolt'),
+        h('div.txt', 'Para los dos por defecto', h('small', 'Activa «Para los dos» en eventos nuevos')),
+        h('label.switch', h('input', { type: 'checkbox', checked: store.get('defRemBoth', true), onchange: (e) => store.set('defRemBoth', e.target.checked) }), h('span.track'), h('span.knob'))),
+    ),
+    section('Sesión'),
+    h('div.card.menu',
+      state.demo
+        ? row('out', 'Salir de la demo', null, () => { location.href = location.pathname; }, { danger: true })
+        : row('out', 'Cerrar sesión', 'Revoca el acceso en este dispositivo', async () => {
+          const ok = await choose('¿Cerrar sesión?', [{ key: 'y', label: 'Cerrar sesión', danger: true }, { key: 'n', label: 'Cancelar' }]);
+          if (ok === 'y') { signOut(); location.reload(); }
+        }, { danger: true }),
+    ),
+    h('p.about', `Calendario S&A · v${APP_VERSION}`, h('br'), 'Los datos viven en vuestro Google Calendar', h('br'), 'Las preferencias se guardan solo en este dispositivo'),
   );
-}
-
-export function applyTheme() {
-  const t = store.get('theme', 'auto');
-  if (t === 'auto') delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = t;
 }
 
 async function shareSetup() {
@@ -110,17 +137,17 @@ function editTemplate(index, rerender) {
   let s;
   const draw = () => {
     clear(body).append(
-      h('label.field', h('span.label', 'Nombre'), h('input.input', { type: 'text', value: t.name, maxlength: 40, oninput: (e) => { t.name = e.target.value; } })),
-      h('div.seg.big', { style: { marginBottom: '12px' } },
+      h('label.fld', h('span.fl', 'Nombre'), h('input.field', { type: 'text', value: t.name, maxlength: 40, oninput: (e) => { t.name = e.target.value; } })),
+      h('div.segm', { style: { marginBottom: '12px' } },
         h('button', { type: 'button', 'aria-pressed': String(t.type === 'event'), onclick: () => { t.type = 'event'; draw(); } }, 'Evento'),
         h('button', { type: 'button', 'aria-pressed': String(t.type === 'task'), onclick: () => { t.type = 'task'; t.allDay = true; draw(); } }, 'Tarea')),
       h('div.switch-row', h('div.txt', 'Todo el día'), h('label.switch', h('input', { type: 'checkbox', checked: t.allDay, onchange: (e) => { t.allDay = e.target.checked; draw(); } }), h('span.track'), h('span.knob'))),
-      t.allDay ? null : h('div.row',
-        h('label.field', h('span.label', 'Duración (min)'), h('input.input', { type: 'number', min: 5, max: 1440, inputmode: 'numeric', value: t.duration || 60, onchange: (e) => { t.duration = +e.target.value || 60; } })),
-        h('label.field', h('span.label', 'Hora fija (opcional)'), h('input.input', { type: 'number', min: 0, max: 23, inputmode: 'numeric', placeholder: '—', value: t.hour ?? '', onchange: (e) => { t.hour = e.target.value === '' ? undefined : Math.min(23, Math.max(0, +e.target.value)); } }))),
-      h('div.section-rule', h('span.label', 'Color')),
-      h('div.swatches', COLORS.map((c) => h('button.swatch', { type: 'button', '--c': c.hex, 'aria-label': c.name, 'aria-pressed': String((t.colorId || '') === c.id), onclick: () => { t.colorId = c.id; draw(); } }))),
-      h('div.section-rule', h('span.label', 'Avisos')),
+      t.allDay ? null : h('div.cols',
+        h('label.fld', h('span.fl', 'Duración (min)'), h('input.field', { type: 'number', min: 5, max: 1440, inputmode: 'numeric', value: t.duration || 60, onchange: (e) => { t.duration = +e.target.value || 60; } })),
+        h('label.fld', h('span.fl', 'Hora fija (opcional)'), h('input.field', { type: 'number', min: 0, max: 23, inputmode: 'numeric', placeholder: '—', value: t.hour ?? '', onchange: (e) => { t.hour = e.target.value === '' ? undefined : Math.min(23, Math.max(0, +e.target.value)); } }))),
+      h('span.fl', 'Color'),
+      h('div.swatches', COLORS.map((c) => h('button.swatch', { type: 'button', '--c': colorHex(c.id), 'aria-label': c.name, 'aria-pressed': String((t.colorId || '') === c.id), onclick: () => { t.colorId = c.id; draw(); } }))),
+      h('span.fl', 'Avisos'),
       h('div.chips', (t.allDay ? REMINDER_PRESETS_ALLDAY : REMINDER_PRESETS_TIMED).map((p) => {
         const on = (t.reminders || []).some((r) => r.minutes === p.minutes);
         return h('button.chip', { type: 'button', 'aria-pressed': String(on), onclick: () => {

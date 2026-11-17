@@ -103,7 +103,7 @@ Los avisos los envía **Google Calendar**, no esta web (una web sin servidor no 
 
 - **¿Por qué a veces pide «Continuar»?** Google da a las apps web sin servidor un acceso que dura 1 hora. Al caducar, la app intenta renovarlo sola. Si no puede, basta un toque en *Continuar*, sin contraseña.
 - **¿Qué ve el otro en Google Calendar?** Todo aparece igual. Las tareas se ven como eventos de día completo con «☐» delante, o «☑» cuando están hechas.
-- **¿Y los colores?** La app usa los 11 colores de Google con una paleta propia de tonos industriales. En Google Calendar se ven con el color equivalente de Google.
+- **¿Y los colores?** La app usa los 11 colores de Google con tonos propios de cada estilo. En Google Calendar se ven con el color equivalente de Google.
 - **¿Puedo probarla sin cuenta?** Sí: abre la web con `?demo=1` al final de la dirección.
 - **Error `redirect_uri_mismatch`**: la URL autorizada en el paso 5 no coincide exactamente con la de la app. Revisa la barra final y si usas `index.html`. En la pantalla «Configuración pendiente» la app muestra la URL exacta que espera.
 - **Error `access_denied` o «app bloqueada»**: comprueba que vuestros emails están en *Usuarios de prueba*, o que la app está *En producción*.

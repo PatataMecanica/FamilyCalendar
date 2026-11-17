@@ -1,6 +1,6 @@
 // Arranque de la app: sesión, elección de calendario, navegación y sincronización.
 
-import { h, icon, clear } from './ui/dom.js';
+import { h, clear } from './ui/dom.js';
 import { store } from './store.js';
 import {
   handleRedirect, getToken, signIn, canTrySilent, isConfigured, redirectUri,
@@ -11,7 +11,7 @@ import { syncSharedReminders } from './reminders-sync.js';
 import { renderUpcoming, resetUpcoming } from './views/upcoming.js';
 import { renderCalendar, goToday } from './views/calendar.js';
 import { renderSearch } from './views/search.js';
-import { renderSettings, applyTheme, consumeSetupLink } from './views/settings.js';
+import { renderSettings, applyDesign, consumeSetupLink } from './views/settings.js';
 import { openQuick } from './ui/quick.js';
 import { toast } from './ui/toast.js';
 import { sheetsOpen, closeAllSheets } from './ui/sheet.js';
@@ -22,7 +22,7 @@ let tab = store.get('tab', 'upcoming');
 if (tab === 'search') tab = 'upcoming';
 let lastRender = 0;
 
-applyTheme();
+applyDesign();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
@@ -30,23 +30,25 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 // ---------------- Pantallas de acceso ----------------
 function gate(...children) {
   const g = $('gate');
-  clear(g).append(h('div.gate-inner', ...children));
+  clear(g).append(h('div.welcome', ...children));
   g.hidden = false;
   $('app').hidden = true;
+  $('nav').hidden = true;
 }
-function hideGate() { $('gate').hidden = true; $('app').hidden = false; }
+function hideGate() { $('gate').hidden = true; $('app').hidden = false; $('nav').hidden = false; }
 
-const brandPlate = (subtitle = 'Calendario compartido') => h('div.plate',
-  h('div.logo', 'S&A'),
-  h('div.logo-sub', h('span.label', subtitle)),
+const brandPlate = (subtitle = 'Calendario compartido') => h('div',
+  h('div.logo', 'S', h('em', '&'), 'A'),
+  h('div.tagline', subtitle),
 );
 
 function showLogin(message) {
   gate(
     brandPlate(),
-    message ? h('p', { style: { color: 'var(--rust)' } }, message) : h('p', 'Vuestro calendario de Google, sin ruido. Inicia sesión con la cuenta que tiene acceso al calendario compartido.'),
-    h('button.btn.primary.block', { type: 'button', onclick: () => signIn({ selectAccount: !store.get('loginHint') }) }, 'Continuar con Google'),
-    store.get('loginHint') ? h('button.btn.ghost.block', { type: 'button', onclick: () => signIn({ selectAccount: true }) }, 'Usar otra cuenta') : null,
+    message ? h('p.intro', { style: { color: 'var(--danger)' } }, message) : h('p.intro', 'Vuestro calendario de Google, sin ruido. Entra con la cuenta que tiene acceso al calendario compartido.'),
+    h('div.stack',
+      h('button.btn.block', { type: 'button', onclick: () => signIn({ selectAccount: !store.get('loginHint') }) }, 'Continuar con Google'),
+      store.get('loginHint') ? h('button.btn.ghost.block', { type: 'button', onclick: () => signIn({ selectAccount: true }) }, 'Usar otra cuenta') : null),
     h('p.fine', 'Si Google avisa de «app no verificada», es normal: la app es vuestra. Pulsa «Continuar».'),
     h('p.fine', h('a', { href: '?demo=1' }, 'Ver demostración sin cuenta')),
   );
@@ -55,9 +57,9 @@ function showLogin(message) {
 function showNotConfigured() {
   gate(
     brandPlate('Configuración pendiente'),
-    h('p', 'Falta el ID de cliente de Google en ', h('code', 'js/config.js'), '. Sigue los pasos de SETUP.md del repositorio.'),
-    h('p.fine', { style: { textAlign: 'left' } }, 'URL de redirección a autorizar: ', h('code', { style: { wordBreak: 'break-all' } }, redirectUri())),
-    h('a.btn.primary.block', { href: '?demo=1', style: { textDecoration: 'none' } }, 'Ver demostración'),
+    h('p.intro', 'Falta el ID de cliente de Google en ', h('code', 'js/config.js'), '. Sigue los pasos de SETUP.md del repositorio.'),
+    h('a.btn.block', { href: '?demo=1' }, 'Ver demostración'),
+    h('p.fine', 'URL de redirección a autorizar: ', h('code', redirectUri())),
   );
 }
 
@@ -66,13 +68,13 @@ function showSessionExpired() {
   if (!sheetsOpen() && canTrySilent()) { signIn({ silent: true }); return; }
   gate(
     brandPlate('Sesión caducada'),
-    h('p', 'Por seguridad, Google renueva el acceso cada hora.'),
-    h('button.btn.primary.block', { type: 'button', onclick: () => signIn({ silent: canTrySilent() }) }, 'Continuar'),
+    h('p.intro', 'Por seguridad, Google renueva el acceso cada hora.'),
+    h('button.btn.block', { type: 'button', onclick: () => signIn({ silent: canTrySilent() }) }, 'Continuar'),
   );
 }
 
 async function showCalendarPicker() {
-  gate(brandPlate('Elige el calendario'), h('div', { style: { display: 'grid', placeItems: 'center', padding: '20px' } }, h('div.spinner')));
+  gate(brandPlate('Elige el calendario'), h('div.spinner'));
   try {
     const cals = await state.api.listCalendars();
     const primary = cals.find((c) => c.primary);
@@ -80,17 +82,17 @@ async function showCalendarPicker() {
     const sorted = [...cals].sort((a, b) => (a.primary ? 1 : 0) - (b.primary ? 1 : 0) || (a.summary || '').localeCompare(b.summary || '', 'es'));
     gate(
       brandPlate('Elige el calendario'),
-      h('p', 'Elige el calendario que compartís. Se recordará en este dispositivo.'),
-      h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
+      h('p.intro', 'Elige el calendario que compartís. Se recordará en este dispositivo.'),
+      h('div.stack',
         sorted.map((c) => h('button.cal-option', {
           type: 'button', '--c': c.backgroundColor || 'var(--accent)',
           onclick: () => selectCalendar(c.id, c.summaryOverride || c.summary),
-        }, h('span.dot'), h('span.nm', c.summaryOverride || c.summary), c.primary ? h('small', 'PRINCIPAL') : null, icon('right', 'sm')))),
-      state.calId ? h('button.btn.ghost.block', { type: 'button', onclick: () => { hideGate(); render(); } }, 'Cancelar') : null,
+        }, h('span.dot'), h('span.nm', c.summaryOverride || c.summary), c.primary ? h('small', 'Principal') : null)),
+        state.calId ? h('button.btn.ghost.block', { type: 'button', onclick: () => { hideGate(); render(); } }, 'Cancelar') : null),
     );
   } catch (e) {
     if (e instanceof AuthError) return showSessionExpired();
-    gate(brandPlate(), h('p', `No se pudo cargar la lista de calendarios: ${e.message}`), h('button.btn.primary.block', { type: 'button', onclick: showCalendarPicker }, 'Reintentar'));
+    gate(brandPlate(), h('p.intro', `No se pudo cargar la lista de calendarios: ${e.message}`), h('button.btn.block', { type: 'button', onclick: showCalendarPicker }, 'Reintentar'));
   }
 }
 
@@ -105,19 +107,32 @@ function selectCalendar(id, name) {
 function setTab(t) {
   tab = t;
   store.set('tab', t);
-  document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'));
+  markTab();
   if (t === 'upcoming') resetUpcoming();
   window.scrollTo(0, 0);
   render();
 }
 
+function markTab() {
+  document.querySelectorAll('#nav button[data-tab]').forEach((b) => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle('on', on);
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+}
+
+// Pastilla de estado (como en Gastos S&A): al día / sincronizando / sin conexión. Al tocarla, actualiza.
+let busy = false;
+function syncPill() {
+  let cls = '', txt = state.demo ? 'Demo' : 'Al día';
+  if (busy) { cls = '.busy'; txt = 'Sincronizando'; }
+  else if (!state.online) { cls = '.err'; txt = 'Sin conexión'; }
+  return h(`button.sync${cls}`, { type: 'button', 'aria-label': `${txt}. Toca para actualizar`, onclick: () => refresh(true) }, h('i'), txt);
+}
 function topActions() {
   const box = clear($('topActions'));
-  if (!state.online) box.append(h('span.tag', { style: { fontFamily: 'var(--f-display)', fontSize: '11px', letterSpacing: '.14em', color: 'var(--rust)', padding: '3px 6px', boxShadow: 'inset 0 0 0 1px currentColor', borderRadius: '3px' } }, 'SIN CONEXIÓN'));
-  if (tab === 'calendar') box.append(h('button.pill-btn', { type: 'button', onclick: () => { goToday(); render(); } }, 'Hoy'));
-  if (tab === 'upcoming' || tab === 'calendar') {
-    box.append(h('button.icon-btn', { type: 'button', 'aria-label': 'Actualizar', onclick: () => refresh(true) }, icon('sync')));
-  }
+  if (tab === 'calendar') box.append(h('button.pill', { type: 'button', onclick: () => { goToday(); render(); } }, 'Hoy'));
+  box.append(syncPill());
 }
 
 let renderSeq = 0;
@@ -137,8 +152,8 @@ async function render() {
     if (e instanceof AuthError) return;
     console.error(e);
     if (e.status === 404) { toast('No se encuentra el calendario. Elige otro.', { error: true }); showCalendarPicker(); return; }
-    clear(root).append(h('div.empty', { style: { marginTop: '40px' } }, h('span.label', 'Sin datos'), `No se pudo cargar: ${e.message}`, h('br'), h('br'),
-      h('button.btn', { type: 'button', onclick: render }, 'Reintentar')));
+    clear(root).append(h('div.card.empty', h('b', 'Sin datos'), `No se pudo cargar: ${e.message}`,
+      h('div.btns', { style: { justifyContent: 'center' } }, h('button.btn.sm', { type: 'button', onclick: render }, 'Reintentar'))));
   }
 }
 
@@ -160,12 +175,13 @@ async function backgroundSync() {
 let started = false;
 function startApp() {
   hideGate();
-  document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-current', b.dataset.tab === tab ? 'page' : 'false'));
+  markTab();
   render();
   backgroundSync();
   if (started) return;
   started = true;
-  document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  document.querySelectorAll('#nav button[data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  bus.addEventListener('busy', (e) => { if (busy !== e.detail) { busy = e.detail; topActions(); } });
   $('fab').addEventListener('click', () => openQuick());
   bus.addEventListener('changed', () => { if (tab !== 'settings') render(); });
   bus.addEventListener('auth-required', () => { closeAllSheets(); showSessionExpired(); });

@@ -5,9 +5,9 @@ import { fetchRange } from '../data.js';
 import { colorHex, occursOn, sortItems } from '../model.js';
 import {
   startOfDay, startOfWeek, startOfMonth, addDays, addMonths, sameDay, weekdayMon, toHM,
-  MONTHS, MONTHS_SHORT, DAYS_SHORT, isoWeek, fmtDayLabel,
+  MONTHS, MONTHS_SHORT, DAYS_SHORT, DAYS_LONG, isoWeek, fmtDayLabel,
 } from '../dates.js';
-import { itemCard, emptyState } from './common.js';
+import { itemCard, emptyState, list as listCard } from './common.js';
 import { openDetail } from '../ui/editor.js';
 import { openQuick } from '../ui/quick.js';
 import { store } from '../store.js';
@@ -30,7 +30,7 @@ function shiftPeriod(n) {
 const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 
 export async function renderCalendar(root, rerender) {
-  const seg = h('div.seg', { role: 'group', 'aria-label': 'Vista' },
+  const seg = h('div.segm.three', { role: 'group', 'aria-label': 'Vista' },
     [['month', 'Mes'], ['week', 'Semana'], ['day', 'Día']].map(([k, l]) => h('button', {
       type: 'button', 'aria-pressed': String(view.mode === k),
       onclick: () => { view.mode = k; store.set('calMode', k); view.cursor = new Date(view.selected); view.dir = 0; rerender(); },
@@ -47,22 +47,22 @@ export async function renderCalendar(root, rerender) {
     range = [ws, addDays(ws, 7)];
     const we = addDays(ws, 6);
     title = ws.getMonth() === we.getMonth() ? `${ws.getDate()}–${we.getDate()} ${MONTHS_SHORT[ws.getMonth()]}` : `${ws.getDate()} ${MONTHS_SHORT[ws.getMonth()]} – ${we.getDate()} ${MONTHS_SHORT[we.getMonth()]}`;
-    sub = `SEM ${isoWeek(ws)}`;
+    sub = `semana ${isoWeek(ws)}`;
   } else {
     range = [startOfDay(c), addDays(startOfDay(c), 1)];
-    title = fmtDayLabel(c); sub = `${DAYS_SHORT[weekdayMon(c)]} ${c.getDate()} ${MONTHS_SHORT[c.getMonth()]}`;
-    if (!/^(Hoy|Mañana|Ayer)$/.test(title)) { title = `${c.getDate()} ${MONTHS[c.getMonth()]}`; sub = `${DAYS_SHORT[weekdayMon(c)]} · ${c.getFullYear()}`; }
+    title = fmtDayLabel(c); sub = `${c.getDate()} de ${MONTHS[c.getMonth()]}`;
+    if (!/^(Hoy|Mañana|Ayer)$/.test(title)) { title = `${c.getDate()} de ${MONTHS[c.getMonth()]}`; sub = DAYS_LONG[weekdayMon(c)]; }
   }
 
   const items = await fetchRange(range[0], range[1]);
   clear(root);
   root.append(
-    h('div.cal-toolbar', seg),
-    h('div.period',
+    seg,
+    h('div.calbar',
       h('h2', title, h('small', sub)),
       h('div.nav',
-        h('button.icon-btn', { type: 'button', 'aria-label': 'Anterior', onclick: () => { shiftPeriod(-1); rerender(); } }, icon('left')),
-        h('button.icon-btn', { type: 'button', 'aria-label': 'Siguiente', onclick: () => { shiftPeriod(1); rerender(); } }, icon('right')),
+        h('button', { type: 'button', 'aria-label': 'Anterior', onclick: () => { shiftPeriod(-1); rerender(); } }, icon('left', 'sm')),
+        h('button', { type: 'button', 'aria-label': 'Siguiente', onclick: () => { shiftPeriod(1); rerender(); } }, icon('right', 'sm')),
       ),
     ),
   );
@@ -86,7 +86,7 @@ export async function renderCalendar(root, rerender) {
 
 function renderMonth(wrap, items, first, rerender) {
   const today = startOfDay(new Date());
-  const grid = h('div.month-grid', { role: 'grid' });
+  const grid = h('div.grid', { role: 'grid' });
   ['L', 'M', 'X', 'J', 'V', 'S', 'D'].forEach((d) => grid.append(h('div.dow', d)));
   const month = view.cursor.getMonth();
   const maxBars = window.innerWidth >= 600 ? 4 : 3;
@@ -109,34 +109,25 @@ function renderMonth(wrap, items, first, rerender) {
         rerender();
       },
     },
-    h('span.num', String(day.getDate())),
-    shown.map((it) => h(`span.bar${it.type === 'task' ? '.task' : ''}${it.done ? '.done' : ''}`, { '--c': colorHex(it.colorId) }, it.title)),
-    list.length > shown.length ? h('span.plus', `+${list.length - shown.length}`) : null,
+    h('span.n', String(day.getDate())),
+    shown.map((it) => h(`span.ev${it.type === 'task' ? '.task' : ''}${it.done ? '.done' : ''}`, { '--c': colorHex(it.colorId) }, it.title)),
+    list.length > shown.length ? h('span.more', `+${list.length - shown.length}`) : null,
     ));
   }
-  wrap.append(grid);
+  wrap.append(h('div.card.month', grid));
 
   // Agenda del día seleccionado
   const sel = view.selected;
   const list = items.filter((it) => occursOn(it, sel)).sort(sortItems);
-  const box = h('section.month-day-list',
-    h('div.day-head', { style: { position: 'static' } },
-      h(`span.d${sameDay(sel, today) ? '.today' : ''}`, fmtDayLabel(sel, today)),
-      h('span.n', `${DAYS_SHORT[weekdayMon(sel)]} ${sel.getDate()} ${MONTHS_SHORT[sel.getMonth()]}`),
-      h('span.rule'),
-      h('button.pill-btn', { type: 'button', onclick: () => openQuick({ date: sel }) }, '+ Añadir'),
-    ),
-  );
-  if (list.length) list.forEach((it) => box.append(itemCard(it, { day: sel })));
-  else box.append(emptyState('Día despejado', 'Toca dos veces un día para abrir su vista.'));
-  wrap.append(box);
+  wrap.append(dayHeader(sel, fmtDayLabel(sel, today), sameDay(sel, today)),
+    listCard(list.length ? list.map((it) => itemCard(it, { day: sel })) : emptyState('Día despejado', 'Toca otra vez el día para abrir su vista.')));
 }
 
 function renderTimeGrid(wrap, items, start, cols, rerender) {
   const today = startOfDay(new Date());
   const now = new Date();
   const days = Array.from({ length: cols }, (_, i) => addDays(start, i));
-  const tg = h('div.tg', { '--cols': cols, 'data-cols': String(cols) });
+  const tg = h('div.card.tg', { '--cols': cols, 'data-cols': String(cols) });
 
   // Cabecera
   tg.append(h('div.tg-head', h('div'), days.map((d) => h(`button.hc${sameDay(d, today) ? '.today' : ''}`, {
@@ -204,12 +195,14 @@ function renderTimeGrid(wrap, items, start, cols, rerender) {
   // Lista bajo la rejilla en vista Día
   if (cols === 1) {
     const list = items.filter((it) => occursOn(it, start)).sort(sortItems);
-    const box = h('section.month-day-list',
-      h('div.day-head', { style: { position: 'static' } }, h('span.d', 'Agenda'), h('span.rule'), h('button.pill-btn', { type: 'button', onclick: () => openQuick({ date: start }) }, '+ Añadir')));
-    if (list.length) list.forEach((it) => box.append(itemCard(it, { day: start })));
-    else box.append(emptyState('Día despejado', 'Toca un hueco de la rejilla para crear algo a esa hora.'));
-    wrap.append(box);
+    wrap.append(dayHeader(start, 'Agenda', false),
+      listCard(list.length ? list.map((it) => itemCard(it, { day: start })) : emptyState('Día despejado', 'Toca un hueco de la rejilla para crear algo a esa hora.')));
   }
+}
+
+function dayHeader(day, title, isToday) {
+  return h(`div.section${isToday ? '.today' : ''}`, h('h2', title),
+    h('button.pill', { type: 'button', onclick: () => openQuick({ date: day }) }, '+ Añadir'));
 }
 
 /** Reparte eventos solapados en carriles */
