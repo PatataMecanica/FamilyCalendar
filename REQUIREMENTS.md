@@ -31,9 +31,7 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
 - F5. Completar o reabrir una tarea con un toque en su casilla, con opción de deshacer.
 
 ### Añadir
-- F6. Botón «+» siempre visible, que abre una hoja con el alta rápida, las plantillas y el formulario completo de evento o de tarea.
-- F7. Alta rápida escribiendo en español: entiende hoy, mañana, pasado mañana, días de la semana, «el próximo…», «el 25», «3 de diciembre», «25/12», horas («21h», «a las 9:30», «de 18 a 20», «a las 9 de la mañana») y la palabra «tarea». Antes de crear muestra cómo lo ha entendido.
-- F8. Plantillas de un toque (por defecto: Compra, Gimnasio, Cena fuera y Médico) con tipo, color, duración, hora fija opcional y avisos. Se crean, editan y borran en Ajustes.
+- F6. Botón «+» siempre visible, que abre directamente el formulario completo. Empieza como evento, o como tarea desde la pestaña Tareas, y arriba se cambia. Lo mismo al tocar «+ Añadir» en un día o un hueco del calendario, con ese día (y esa hora) ya puestos.
 - F9. Formulario con:
   - tipo (evento o tarea), título, todo el día o con hora, inicio y fin;
   - repetición (diaria, semanal eligiendo días, mensual o anual; sin fin, hasta una fecha o un número de veces);
@@ -55,7 +53,6 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
 
 ### Tareas
 - F28. Pestaña con todas las tareas pendientes, agrupadas en vencidas, hoy, esta semana (hasta el domingo) y más adelante (hasta un año). De una tarea que se repite solo se ve la próxima vez. Las hechas de los últimos 30 días van al final, plegadas.
-- F29. Alta rápida de tareas arriba de la lista, con el mismo intérprete que F7. Sin fecha, la tarea queda para hoy.
 - F30. El icono de la pestaña lleva un contador de tareas vencidas y pendientes de hoy, en rojo si hay alguna vencida.
 
 ### Buscar
@@ -66,14 +63,14 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
 
 ### Ajustes
 - F17. Elegir o cambiar el calendario de la lista de calendarios en los que la cuenta puede escribir.
-- F18. Generar un enlace de configuración (con el calendario elegido y las plantillas) para dejar el otro móvil listo sin copiar nada.
+- F18. Generar un enlace de configuración (con el calendario elegido) para dejar el otro móvil listo sin copiar nada.
 - F19. Elegir los avisos por defecto de los eventos con hora y de los de día completo, y si «Para los dos» viene activado.
 - F20. Sincronizar a mano y cerrar sesión.
 
 ### Diseño
 - F21. Elegir el modo: el del sistema, claro u oscuro.
 - F22. Elegir el estilo visual entre «Pastel», «Neón» y «Ochentas», los mismos que Gastos S&A. Todos funcionan en claro y en oscuro.
-- F23. Modo, estilo, plantillas y avisos por defecto son de cada móvil y se conservan al cerrar la app.
+- F23. Modo, estilo y avisos por defecto son de cada móvil y se conservan al cerrar la app.
 
 ### Sesión y conexión
 - F24. Iniciar sesión con Google. Al caducar el acceso, la app intenta renovarlo sola y, si no puede, pide un solo toque en «Continuar».
@@ -101,6 +98,8 @@ Decidido expresamente; no añadir sin preguntar.
 - Un servidor propio para mantener la sesión abierta (por ejemplo, un Cloudflare Worker con refresh tokens).
 - Notificaciones propias de la app: los avisos los envía Google Calendar, así que los dos tienen instalada su app oficial.
 - Colores de evento fuera de los 11 de Google.
+- Plantillas rápidas y la hoja «Nuevo» (alta rápida de eventos, plantillas y elección de tipo): no se usaban y obligaban a pasar por ella antes de llegar al formulario. El «+» abre el formulario directamente.
+- Alta rápida escribiendo en español (antes F7 y F29): sin la hoja «Nuevo» solo quedaba en la pestaña Tareas, y no era coherente con el resto. Todo se añade con el «+».
 - La estética industrial de la primera versión: se sustituyó por el sistema de diseño de Gastos S&A.
 
 ## No incluido por ahora
@@ -116,7 +115,6 @@ No se ha pedido ni descartado; preguntar antes de añadirlo.
 
 - «Para los dos» con las dos cuentas reales: que la cuenta que no creó el evento reciba los avisos tras abrir la app, también en eventos repetidos.
 - Renovación silenciosa de la sesión en el iPhone con la app instalada, y si Google vuelve a pedir el permiso cada 7 días con la app «En prueba».
-- Que el alta rápida entienda las frases que usáis de verdad. Ampliar las pruebas con los casos que fallen.
 - El modo sin conexión en los móviles reales.
 - Los estilos «Neón» y «Ochentas» en los móviles reales: solo se han revisado en capturas a 390 px de ancho.
 - Los colores de evento de cada estilo no se han validado para daltonismo.

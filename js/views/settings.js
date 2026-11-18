@@ -3,12 +3,11 @@ import { openSheet, choose } from '../ui/sheet.js';
 import { toast } from '../ui/toast.js';
 import { state, emit } from '../data.js';
 import { store } from '../store.js';
-import { getTemplates, setTemplates } from '../templates.js';
-import { COLORS, colorHex, reminderLabel, REMINDER_PRESETS_TIMED, REMINDER_PRESETS_ALLDAY } from '../model.js';
+import { reminderLabel, REMINDER_PRESETS_TIMED, REMINDER_PRESETS_ALLDAY } from '../model.js';
 import { defaultReminders } from '../ui/editor.js';
 import { signOut } from '../auth.js';
 
-export const APP_VERSION = '1.3.0';
+export const APP_VERSION = '1.6.0';
 
 // Estilos y modos, igual que en Gastos S&A
 export const ESTILOS = { pastel: 'Pastel', neon: 'Neón', retro: 'Ochentas' };
@@ -42,7 +41,6 @@ export function renderSettings(root, rerender) {
   const section = (title) => h('div.section', h('h2', title));
 
   const { tema, estilo } = getDesign();
-  const tpls = getTemplates();
   const setDesign = (k, v) => { store.set(k, v); applyDesign(); rerender(); };
 
   root.append(
@@ -62,14 +60,6 @@ export function renderSettings(root, rerender) {
       row('cal', state.calName || 'Calendario', state.demo ? 'Modo demostración' : 'Toca para cambiar de calendario', () => emit('pick-calendar')),
       state.demo ? null : row('link', 'Enlace de configuración', 'Para configurar el otro móvil sin copiar nada', shareSetup),
       state.demo ? null : row('sync', 'Sincronizar ahora', 'Recarga los datos y aplica avisos compartidos', () => emit('sync')),
-    ),
-    section('Plantillas rápidas'),
-    h('div.card.menu',
-      tpls.map((t, i) => h('button.mrow', { type: 'button', onclick: () => editTemplate(i, rerender) },
-        h('span.dot', { '--c': colorHex(t.colorId) }),
-        h('div.txt', t.name, h('small', t.type === 'task' ? 'Tarea' : t.allDay ? 'Evento · todo el día' : `Evento · ${t.duration || 60} min${t.hour != null ? ` · ${t.hour}:00` : ''}`)),
-        icon('right', 'sm go'))),
-      h('button.mrow.add', { type: 'button', onclick: () => editTemplate(-1, rerender) }, icon('plus'), h('div.txt', 'Nueva plantilla')),
     ),
     section('Avisos por defecto'),
     h('div.card.menu',
@@ -94,7 +84,7 @@ export function renderSettings(root, rerender) {
 }
 
 async function shareSetup() {
-  const payload = { c: state.calId, n: state.calName, t: getTemplates() };
+  const payload = { c: state.calId, n: state.calName };
   const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const url = `${location.origin}${location.pathname}#setup=${b64}`;
   try {
@@ -113,60 +103,8 @@ export function consumeSetupLink() {
     const json = decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
     const p = JSON.parse(json);
     if (p.c && typeof p.c === 'string') { store.set('calId', p.c); store.set('calName', String(p.n || '')); }
-    if (Array.isArray(p.t)) setTemplates(p.t.slice(0, 20).map(sanitizeTpl));
     return true;
   } catch { return false; }
-}
-
-function sanitizeTpl(t) {
-  return {
-    name: String(t.name || 'Plantilla').slice(0, 40),
-    type: t.type === 'task' ? 'task' : 'event',
-    colorId: COLORS.some((c) => c.id === t.colorId) ? t.colorId : '',
-    allDay: !!t.allDay,
-    duration: Math.min(1440, Math.max(5, +t.duration || 60)),
-    hour: t.hour != null && +t.hour >= 0 && +t.hour <= 23 ? +t.hour : undefined,
-    reminders: Array.isArray(t.reminders) ? t.reminders.slice(0, 5).map((r) => ({ method: 'popup', minutes: Math.min(40320, Math.max(0, +r.minutes || 0)) })) : [],
-  };
-}
-
-function editTemplate(index, rerender) {
-  const list = getTemplates();
-  const t = index >= 0 ? { ...list[index] } : { name: '', type: 'event', colorId: '', allDay: false, duration: 60, reminders: [] };
-  const body = h('div');
-  let s;
-  const draw = () => {
-    clear(body).append(
-      h('label.fld', h('span.fl', 'Nombre'), h('input.field', { type: 'text', value: t.name, maxlength: 40, oninput: (e) => { t.name = e.target.value; } })),
-      h('div.segm', { style: { marginBottom: '12px' } },
-        h('button', { type: 'button', 'aria-pressed': String(t.type === 'event'), onclick: () => { t.type = 'event'; draw(); } }, 'Evento'),
-        h('button', { type: 'button', 'aria-pressed': String(t.type === 'task'), onclick: () => { t.type = 'task'; t.allDay = true; draw(); } }, 'Tarea')),
-      h('div.switch-row', h('div.txt', 'Todo el día'), h('label.switch', h('input', { type: 'checkbox', checked: t.allDay, onchange: (e) => { t.allDay = e.target.checked; draw(); } }), h('span.track'), h('span.knob'))),
-      t.allDay ? null : h('div.cols',
-        h('label.fld', h('span.fl', 'Duración (min)'), h('input.field', { type: 'number', min: 5, max: 1440, inputmode: 'numeric', value: t.duration || 60, onchange: (e) => { t.duration = +e.target.value || 60; } })),
-        h('label.fld', h('span.fl', 'Hora fija (opcional)'), h('input.field', { type: 'number', min: 0, max: 23, inputmode: 'numeric', placeholder: '—', value: t.hour ?? '', onchange: (e) => { t.hour = e.target.value === '' ? undefined : Math.min(23, Math.max(0, +e.target.value)); } }))),
-      h('span.fl', 'Color'),
-      h('div.swatches', COLORS.map((c) => h('button.swatch', { type: 'button', '--c': colorHex(c.id), 'aria-label': c.name, 'aria-pressed': String((t.colorId || '') === c.id), onclick: () => { t.colorId = c.id; draw(); } }))),
-      h('span.fl', 'Avisos'),
-      h('div.chips', (t.allDay ? REMINDER_PRESETS_ALLDAY : REMINDER_PRESETS_TIMED).map((p) => {
-        const on = (t.reminders || []).some((r) => r.minutes === p.minutes);
-        return h('button.chip', { type: 'button', 'aria-pressed': String(on), onclick: () => {
-          t.reminders = on ? t.reminders.filter((r) => r.minutes !== p.minutes) : [...(t.reminders || []), { method: 'popup', minutes: p.minutes }].slice(0, 5);
-          draw();
-        } }, p.label);
-      })),
-    );
-  };
-  draw();
-  const foot = h('div', { style: { display: 'contents' } },
-    index >= 0 ? h('button.btn.danger', { type: 'button', style: { flex: '0 0 auto' }, 'aria-label': 'Eliminar plantilla', onclick: () => { list.splice(index, 1); setTemplates(list); s.close(); rerender(); } }, icon('trash', 'sm')) : null,
-    h('button.btn.primary', { type: 'button', onclick: () => {
-      if (!t.name.trim()) return toast('Ponle un nombre', { error: true });
-      const clean = sanitizeTpl({ ...t, name: t.name.trim() });
-      if (index >= 0) list[index] = clean; else list.push(clean);
-      setTemplates(list); s.close(); rerender();
-    } }, icon('check', 'sm'), 'Guardar'));
-  s = openSheet({ title: index >= 0 ? 'Editar plantilla' : 'Nueva plantilla', body, foot });
 }
 
 function editDefaults(allDay, rerender) {

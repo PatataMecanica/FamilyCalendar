@@ -1,12 +1,12 @@
 // Service worker: guarda la "carcasa" de la app para que abra al instante y sin conexión.
 // Las llamadas a Google (API y acceso) nunca se cachean.
-const VERSION = 'sa-cal-v1.3.0';
+const VERSION = 'sa-cal-v1.6.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/styles.css', 'js/boot-design.js',
   'js/app.js', 'js/api.js', 'js/auth.js', 'js/config.js', 'js/data.js', 'js/dates.js', 'js/demo.js',
-  'js/model.js', 'js/quickadd.js', 'js/recurrence.js', 'js/reminders-sync.js', 'js/store.js', 'js/tasks.js', 'js/templates.js',
-  'js/ui/dom.js', 'js/ui/editor.js', 'js/ui/quick.js', 'js/ui/search.js', 'js/ui/sheet.js', 'js/ui/swipe.js', 'js/ui/toast.js',
+  'js/model.js', 'js/recurrence.js', 'js/reminders-sync.js', 'js/store.js', 'js/tasks.js',
+  'js/ui/dom.js', 'js/ui/editor.js', 'js/ui/search.js', 'js/ui/sheet.js', 'js/ui/swipe.js', 'js/ui/toast.js',
   'js/views/calendar.js', 'js/views/common.js', 'js/views/settings.js', 'js/views/tasks.js', 'js/views/upcoming.js',
   'fonts/fraunces-latin-400-normal.woff2', 'fonts/fraunces-latin-400-italic.woff2', 'fonts/fraunces-latin-500-normal.woff2', 'fonts/fraunces-latin-600-normal.woff2',
   'fonts/dm-sans-latin-400-normal.woff2', 'fonts/dm-sans-latin-500-normal.woff2', 'fonts/dm-sans-latin-600-normal.woff2',

@@ -13,7 +13,7 @@ import { renderUpcoming, resetUpcoming } from './views/upcoming.js';
 import { renderCalendar, goToday } from './views/calendar.js';
 import { renderTasks } from './views/tasks.js';
 import { renderSettings, applyDesign, consumeSetupLink } from './views/settings.js';
-import { openQuick } from './ui/quick.js';
+import { openNew } from './ui/editor.js';
 import { toast } from './ui/toast.js';
 import { sheetsOpen, closeAllSheets } from './ui/sheet.js';
 import { initTabSwipe } from './ui/swipe.js';
@@ -23,6 +23,7 @@ const TITLES = { upcoming: 'Próximos', calendar: 'Calendario', tasks: 'Tareas',
 const TABS = ['upcoming', 'calendar', 'tasks', 'settings']; // orden de la barra (y del gesto lateral)
 let tab = store.get('tab', 'upcoming');
 if (!TITLES[tab]) tab = 'upcoming'; // p. ej. la antigua pestaña «Buscar»
+store.remove('templates'); // las plantillas rápidas ya no existen
 let lastRender = 0;
 
 applyDesign();
@@ -221,7 +222,7 @@ function startApp() {
   started = true;
   document.querySelectorAll('#nav button[data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   bus.addEventListener('busy', (e) => { if (busy !== e.detail) { busy = e.detail; topActions(); } });
-  $('fab').addEventListener('click', () => openQuick());
+  $('fab').addEventListener('click', () => openNew({ type: tab === 'tasks' ? 'task' : 'event' }));
   initTabSwipe({
     app: $('app'), tabs: TABS, current: () => tab,
     blocked: () => sheetsOpen() || !$('gate').hidden,

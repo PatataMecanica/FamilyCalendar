@@ -5,7 +5,7 @@ import {
   startOfDay, addDays, DAYS_LONG, MONTHS, weekdayMon, isoWeek, fmtDayLabel, toHM, cap,
 } from '../dates.js';
 import { itemCard, emptyState, list } from './common.js';
-import { openQuick } from '../ui/quick.js';
+import { openNew } from '../ui/editor.js';
 
 let span = 14;
 
@@ -53,7 +53,7 @@ export async function renderUpcoming(root) {
       h('span.when', i < 2 ? cap(`${DAYS_LONG[weekdayMon(day)]} ${day.getDate()}`) : `${day.getDate()} de ${MONTHS[day.getMonth()]}`),
     ));
     if (!dayItems.length) {
-      root.append(list(h('button.empty', { type: 'button', onclick: () => openQuick({ date: day }) }, h('b', 'Día despejado'), 'Toca para añadir algo')));
+      root.append(list(h('button.empty', { type: 'button', onclick: () => openNew({ date: day }) }, h('b', 'Día despejado'), 'Toca para añadir algo')));
       continue;
     }
     const rows = [];

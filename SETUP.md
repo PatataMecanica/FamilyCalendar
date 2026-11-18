@@ -74,7 +74,7 @@ Guarda el cambio (*commit*) en la rama publicada. En uno o dos minutos la web ya
 2. Acepta los permisos.
 3. Elige vuestro **calendario compartido** en la lista. Queda recordado en el móvil.
 4. Ve a **Ajustes → Enlace de configuración** y envíaselo a tu pareja por WhatsApp o Mensajes.
-   El enlace lleva el calendario elegido y vuestras plantillas, así que su móvil queda configurado sin copiar nada.
+   El enlace lleva el calendario elegido, así que su móvil queda configurado sin copiar nada.
    El enlace no da acceso a nadie: hace falta iniciar sesión con una cuenta que ya tenga permiso sobre el calendario.
 
 > Requisito: el calendario debe estar compartido con la cuenta de tu pareja con el permiso **Hacer cambios en eventos**. Se configura en Google Calendar → Configuración del calendario → Compartir con determinadas personas.

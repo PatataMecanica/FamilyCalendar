@@ -20,13 +20,11 @@ App de calendario compartido para dos personas, una con Android y otra con iPhon
 | `js/data.js` | Estado compartido (`state`), bus de eventos, caché de rangos, altas, ediciones, borrados y copia sin conexión |
 | `js/model.js` | Conversión entre eventos de Google y elementos de la app (`fromGoogle` / `toGoogle`), colores y avisos predefinidos |
 | `js/reminders-sync.js` | Avisos «Para los dos» |
-| `js/quickadd.js` | Intérprete del alta rápida en español |
 | `js/tasks.js` | Agrupación de la pestaña Tareas (sin DOM, con pruebas) |
 | `js/recurrence.js` | Reglas `RRULE`: construir, leer y describir |
 | `js/dates.js` | Fechas en hora local, semana empezando en lunes, nombres en español |
 | `js/store.js` | `localStorage` con prefijo `sa-cal:`, tolerante a fallos |
-| `js/templates.js` | Plantillas rápidas |
-| `js/ui/` | `dom.js` (`h()` e `icon()`), `sheet.js` (hojas inferiores), `toast.js`, `editor.js` (formulario y detalle), `quick.js` (hoja «Nuevo»), `search.js` (hoja de búsqueda, desde la lupa de Calendario), `swipe.js` (deslizar entre pestañas) |
+| `js/ui/` | `dom.js` (`h()` e `icon()`), `sheet.js` (hojas inferiores), `toast.js`, `editor.js` (formulario, detalle y `openNew` para el «+»), `search.js` (hoja de búsqueda, desde la lupa de Calendario), `swipe.js` (deslizar entre pestañas) |
 | `js/views/` | `upcoming.js`, `calendar.js` (Mes/Semana/Día), `tasks.js`, `settings.js` (incluye `applyDesign`), `common.js` (fila de evento o tarea) |
 | `js/config.js` | `CLIENT_ID` de OAuth y permisos pedidos |
 | `sw.js` | Service worker: guarda la app para abrirla sin conexión |
@@ -40,7 +38,7 @@ No hay dependencias ni compilación. JavaScript (módulos ES) y CSS sin framewor
 
 ```bash
 python3 -m http.server 8080   # y abrir http://localhost:8080/?demo=1
-npm test                      # intérprete de alta rápida, recurrencia, modelo y agrupación de tareas
+npm test                      # recurrencia, modelo y agrupación de tareas
 node --check js/app.js        # comprobación de sintaxis (repetir por archivo)
 ```
 
@@ -55,7 +53,7 @@ node --check js/app.js        # comprobación de sintaxis (repetir por archivo)
     - responder a `accounts.google.com` con una redirección a `redirect_uri#access_token=…&state=…`;
     - simular `www.googleapis.com/calendar/v3/...`.
 - **Para revisar el diseño sin pulsar nada**: poner en el `localStorage`, antes de cargar, `sa-cal:estilo` (`"pastel"`, `"neon"` o `"retro"`) y `sa-cal:tema` (`"auto"`, `"light"` o `"dark"`). Son cadenas JSON, con comillas.
-- **Cambios en `js/quickadd.js`**: añadir siempre casos a `tests/quickadd.test.mjs`. Las pruebas fijan «ahora» en el martes 17 de noviembre de 2026 a las 10:00.
+- **Pruebas** (`tests/app.test.mjs`): fijan «ahora» en el martes 17 de noviembre de 2026 a las 10:00. Al cambiar `js/tasks.js`, `js/model.js` o `js/recurrence.js`, añadir casos.
 
 ## Despliegue
 
@@ -97,7 +95,7 @@ node --check js/app.js        # comprobación de sintaxis (repetir por archivo)
   - Una respuesta 401 lanza `AuthError` y emite `auth-required`.
   - La renovación silenciosa (`prompt=none`) se intenta como mucho cada 2 minutos (`canTrySilent`), para no entrar en bucle de redirecciones.
   - El token y el email (`loginHint`) solo se guardan en el móvil.
-- **Gesto lateral**: deslizar en horizontal es solo para cambiar de pestaña (`js/ui/swipe.js`). No añadir otros gestos horizontales en las vistas; lo que tenga desplazamiento horizontal propio (como las plantillas) queda fuera del gesto automáticamente.
+- **Gesto lateral**: deslizar en horizontal es solo para cambiar de pestaña (`js/ui/swipe.js`). No añadir otros gestos horizontales en las vistas; lo que tenga desplazamiento horizontal propio queda fuera del gesto automáticamente.
   - La pestaña vecina se pinta con las mismas funciones que la de verdad (`paintView` en `js/app.js`) dentro de una página `.peek` inerte. Las vistas no deben depender de ids ni dejar efectos al pintarse.
 - **Hojas inferiores y botón «atrás»**: `js/ui/sheet.js` mantiene una entrada en el historial mientras hay hojas abiertas. No llamar a `history.back()` ni `pushState` por otro lado.
 - **Colores de evento**: son los 11 `colorId` de Google más el del calendario.
@@ -122,4 +120,4 @@ Cómo está montado:
   2. Escribir sus variables para claro y oscuro, colores de evento incluidos.
   3. Añadir una muestra `.sw.clave`. El selector es una rejilla de tres columnas; con un cuarto estilo habría que rehacerlo.
 
-Usar las variables de `css/styles.css` en lugar de colores sueltos. Comprobar siempre los tres estilos en claro y oscuro a ancho de móvil (390 px): Próximos, las tres vistas del calendario, la hoja «Nuevo», el formulario, el detalle, Tareas, la hoja de búsqueda, Ajustes y la pantalla de acceso.
+Usar las variables de `css/styles.css` en lugar de colores sueltos. Comprobar siempre los tres estilos en claro y oscuro a ancho de móvil (390 px): Próximos, las tres vistas del calendario, el formulario, el detalle, Tareas, la hoja de búsqueda, Ajustes y la pantalla de acceso.
