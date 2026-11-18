@@ -1,4 +1,5 @@
-// Vista de calendario: Mes / Semana / Día, con deslizamiento lateral.
+// Vista de calendario: Mes / Semana / Día. El periodo se cambia con las flechas;
+// el gesto lateral es para pasar de pestaña (js/ui/swipe.js).
 
 import { h, icon, clear } from '../ui/dom.js';
 import { fetchRange } from '../data.js';
@@ -74,16 +75,6 @@ export async function renderCalendar(root, rerender) {
 
   if (view.mode === 'month') renderMonth(wrap, items, range[0], rerender);
   else renderTimeGrid(wrap, items, view.mode === 'week' ? range[0] : startOfDay(c), view.mode === 'week' ? 7 : 1, rerender);
-
-  // Deslizamiento horizontal
-  let x0 = null, y0 = null;
-  wrap.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
-  wrap.addEventListener('touchend', (e) => {
-    if (x0 == null) return;
-    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-    x0 = null;
-    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { shiftPeriod(dx < 0 ? 1 : -1); rerender(); }
-  }, { passive: true });
 }
 
 function renderMonth(wrap, items, first, rerender) {

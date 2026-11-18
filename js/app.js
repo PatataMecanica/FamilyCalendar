@@ -16,9 +16,11 @@ import { renderSettings, applyDesign, consumeSetupLink } from './views/settings.
 import { openQuick } from './ui/quick.js';
 import { toast } from './ui/toast.js';
 import { sheetsOpen, closeAllSheets } from './ui/sheet.js';
+import { initTabSwipe } from './ui/swipe.js';
 
 const $ = (id) => document.getElementById(id);
 const TITLES = { upcoming: 'Próximos', calendar: 'Calendario', tasks: 'Tareas', settings: 'Ajustes' };
+const TABS = ['upcoming', 'calendar', 'tasks', 'settings']; // orden de la barra (y del gesto lateral)
 let tab = store.get('tab', 'upcoming');
 if (!TITLES[tab]) tab = 'upcoming'; // p. ej. la antigua pestaña «Buscar»
 let lastRender = 0;
@@ -111,7 +113,7 @@ function setTab(t) {
   markTab();
   if (t === 'upcoming') resetUpcoming();
   window.scrollTo(0, 0);
-  render();
+  return render();
 }
 
 function markTab() {
@@ -130,10 +132,34 @@ function syncPill() {
   else if (!state.online) { cls = '.err'; txt = 'Sin conexión'; }
   return h(`button.sync${cls}`, { type: 'button', 'aria-label': `${txt}. Toca para actualizar`, onclick: () => refresh(true) }, h('i'), txt);
 }
-function topActions() {
-  const box = clear($('topActions'));
-  if (tab === 'calendar') box.append(h('button.pill', { type: 'button', onclick: () => { goToday(); render(); } }, 'Hoy'));
-  box.append(syncPill());
+function headActions(t) {
+  return [
+    t === 'calendar' ? h('button.pill', { type: 'button', onclick: () => { goToday(); render(); } }, 'Hoy') : null,
+    syncPill(),
+  ];
+}
+function topActions() { clear($('topActions')).append(...headActions(tab).filter(Boolean)); }
+
+/** Pinta la vista de una pestaña en root. Devuelve los grupos de tareas si es la pestaña Tareas. */
+async function paintView(t, root, rerender) {
+  if (t === 'upcoming') await renderUpcoming(root);
+  else if (t === 'calendar') await renderCalendar(root, rerender);
+  else if (t === 'tasks') return renderTasks(root);
+  else renderSettings(root, rerender);
+  return null;
+}
+
+// Pestaña vecina que asoma al deslizar: misma cabecera y vista, sin interacción
+function paintPeek(t, page) {
+  const main = h('main', h('div.spinner'));
+  page.append(
+    h('header.head', h('div', h('div.eyebrow', 'Calendario S&A'), h('h1', TITLES[t])), h('div.head-actions', headActions(t))),
+    main,
+  );
+  const noop = () => {};
+  paintView(t, main, noop)
+    .then(() => page.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id')))
+    .catch(() => { /* la de verdad ya enseñará el error */ });
 }
 
 // Contador en la pestaña Tareas: vencidas + pendientes de hoy
@@ -157,12 +183,9 @@ async function render() {
   topActions();
   const my = ++renderSeq;
   try {
-    if (tab === 'upcoming') await renderUpcoming(root);
-    else if (tab === 'calendar') await renderCalendar(root, render);
-    else if (tab === 'tasks') { setBadge(await renderTasks(root)); lastRender = Date.now(); return; }
-    else renderSettings(root, render);
+    const groups = await paintView(tab, root, render);
     lastRender = Date.now();
-    updateBadge();
+    if (groups) setBadge(groups); else updateBadge();
   } catch (e) {
     if (my !== renderSeq) return;
     if (e instanceof AuthError) return;
@@ -199,6 +222,13 @@ function startApp() {
   document.querySelectorAll('#nav button[data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   bus.addEventListener('busy', (e) => { if (busy !== e.detail) { busy = e.detail; topActions(); } });
   $('fab').addEventListener('click', () => openQuick());
+  initTabSwipe({
+    app: $('app'), tabs: TABS, current: () => tab,
+    blocked: () => sheetsOpen() || !$('gate').hidden,
+    paint: paintPeek,
+    go: (t) => setTab(t),
+    mark: (t) => { tab = t; markTab(); },
+  });
   bus.addEventListener('changed', () => { if (tab !== 'settings') render(); });
   bus.addEventListener('auth-required', () => { closeAllSheets(); showSessionExpired(); });
   bus.addEventListener('pick-calendar', showCalendarPicker);

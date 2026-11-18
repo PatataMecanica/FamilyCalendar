@@ -45,7 +45,7 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
   - interruptor «Para los dos».
 
 ### Calendario
-- F11. Vistas Mes, Semana y Día, con botón «Hoy» y flechas. Se cambia de periodo deslizando en horizontal.
+- F11. Vistas Mes, Semana y Día, con botón «Hoy» y flechas para cambiar de periodo. El periodo no se cambia deslizando: ese gesto es para pasar de pestaña (F27).
 - F12. Mes: rejilla de lunes a domingo con los elementos de cada día. Al tocar un día se ve su agenda debajo; al tocarlo otra vez se abre su vista Día.
 - F13. Semana y Día: rejilla horaria con una fila de «todo el día», línea de «ahora» y eventos solapados uno al lado del otro. Tocar un hueco crea algo a esa hora.
 
@@ -53,8 +53,16 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
 - F14. Al tocar un elemento se ve su detalle: cuándo, ubicación (enlace a mapas), repetición, avisos, notas y color.
 - F15. Desde el detalle se edita, se borra (con «Deshacer» si no es repetido) o, si es tarea, se marca hecha o se reabre.
 
+### Tareas
+- F28. Pestaña con todas las tareas pendientes, agrupadas en vencidas, hoy, esta semana (hasta el domingo) y más adelante (hasta un año). De una tarea que se repite solo se ve la próxima vez. Las hechas de los últimos 30 días van al final, plegadas.
+- F29. Alta rápida de tareas arriba de la lista, con el mismo intérprete que F7. Sin fecha, la tarea queda para hoy.
+- F30. El icono de la pestaña lleva un contador de tareas vencidas y pendientes de hoy, en rojo si hay alguna vencida.
+
 ### Buscar
-- F16. Buscar por título, lugar o notas desde hace un año hasta dentro de dos, separando próximos y pasados.
+- F16. Buscar por título, lugar o notas desde hace un año hasta dentro de dos, separando próximos y pasados. Se abre con la lupa de Calendario.
+
+### Navegación
+- F27. Pasar a la pestaña de al lado deslizando el dedo a izquierda o derecha, como en Gastos S&A. La vecina asoma mientras se arrastra; si no se llega a la mitad ni se lanza con impulso, vuelve a su sitio.
 
 ### Ajustes
 - F17. Elegir o cambiar el calendario de la lista de calendarios en los que la cuenta puede escribir.
@@ -102,7 +110,6 @@ No se ha pedido ni descartado; preguntar antes de añadirlo.
 - Editar o borrar «Este y los siguientes» en eventos repetidos.
 - Invitados, videollamadas y adjuntos.
 - Ver varios calendarios a la vez.
-- Pasar de una pestaña a otra deslizando el dedo, como en Gastos S&A.
 - Crear o editar sin conexión.
 
 ## Pendiente de comprobar

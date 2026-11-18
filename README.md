@@ -15,7 +15,7 @@ Más documentación:
   - **Eventos**: hora y barrita de su color.
   - **Tareas**: casilla redonda de su color y fondo suave, para completarlas al instante, con opción de deshacer.
   - **Tareas vencidas**: aparecen arriba, en una tarjeta destacada.
-- **Calendario**: vistas Mes, Semana y Día. Se desliza a los lados para cambiar de periodo, y tocar un hueco crea algo a esa hora.
+- **Calendario**: vistas Mes, Semana y Día. El periodo se cambia con las flechas de anterior y siguiente, y tocar un hueco crea algo a esa hora.
 - **Botón +**:
   - **Alta rápida** en español: «cena con Laura viernes 21h», «tarea pagar seguro el 25», «gimnasio de 18 a 19:30».
   - **Plantillas** de un toque.
@@ -28,6 +28,7 @@ Más documentación:
   - El icono de la barra lleva un contador de vencidas y pendientes de hoy.
 - **Buscar**: la lupa de Calendario busca por título, lugar o notas.
 - **Ajustes**: estilo y modo, elegir calendario, **enlace de configuración** para el otro móvil, plantillas y avisos por defecto.
+- **Deslizar entre pestañas**: como en Gastos S&A, se pasa de una pestaña a la de al lado deslizando a izquierda o derecha. La vecina asoma mientras se arrastra.
 - **Sin conexión**: la app abre al instante y muestra la última copia de las próximas semanas, en solo lectura.
 
 ## Privacidad
@@ -73,7 +74,7 @@ Estructura detallada y reglas de desarrollo en [CLAUDE.md](CLAUDE.md).
 index.html  manifest.webmanifest  sw.js
 css/   styles
 js/    boot-design · app · auth · api · data · model · tasks · dates · quickadd · recurrence · reminders-sync · templates · store · demo
-js/ui/     dom · sheet · toast · editor · quick · search
+js/ui/     dom · sheet · toast · editor · quick · search · swipe
 js/views/  upcoming · calendar · tasks · settings · common
 ```
 
