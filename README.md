@@ -16,7 +16,7 @@ Más documentación:
   - **Tareas**: casilla redonda de su color y fondo suave, para completarlas al instante, con opción de deshacer.
   - **Tareas vencidas**: aparecen arriba, en una tarjeta destacada.
 - **Calendario**: vistas Mes, Semana y Día. El periodo se cambia con las flechas de anterior y siguiente, y tocar un hueco crea algo a esa hora.
-- **Botón +**: abre directamente el formulario completo, como evento; arriba se cambia a tarea.
+- **Botón +**: abre directamente el formulario completo. Empieza como evento (como tarea si estás en la pestaña Tareas) y arriba se cambia.
 - **Formulario**: evento o tarea, todo el día, repetición (diaria, semanal por días, mensual o anual, con fin opcional), hasta 5 avisos, 11 colores, ubicación y notas.
 - **Avisos «Para los dos»**: en Google los avisos son personales. La app los guarda en el evento y los aplica también a la cuenta de la otra persona cuando abre la app.
 - **Tareas**: todas las pendientes en una lista, agrupadas en Vencidas, Hoy, Esta semana y Más adelante, más las hechas de los últimos 30 días (plegadas).

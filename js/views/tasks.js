@@ -1,4 +1,4 @@
-// Pestaña «Tareas»: todas las pendientes agrupadas y las hechas recientes. Se añaden con el «+».
+// Pestaña «Tareas»: todas las pendientes agrupadas y las hechas recientes. Se añaden con el «+», que aquí empieza como tarea.
 
 import { h, clear } from '../ui/dom.js';
 import { fetchTasks } from '../data.js';

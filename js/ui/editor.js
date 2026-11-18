@@ -34,10 +34,12 @@ export function newDraft(over = {}) {
 
 /**
  * Formulario completo para algo nuevo (botón «+», «+ Añadir» de un día o un hueco del calendario).
- * Empieza como evento; arriba se cambia a tarea.
- * @param {{date?:Date, hour?:number}} ctx  día y hora preseleccionados
+ * Empieza como evento (o como tarea si se pide, p. ej. desde la pestaña Tareas); arriba se cambia.
+ * @param {{date?:Date, hour?:number, type?:'event'|'task'}} ctx  día y hora preseleccionados
  */
-export function openNew({ date = null, hour = null } = {}) {
+export function openNew({ date = null, hour = null, type = 'event' } = {}) {
+  // Tarea: sin hora y para hoy (o ese día)
+  if (type === 'task') return openEditor({ draft: date ? { type, start: new Date(date) } : { type } });
   if (!date) return openEditor({ draft: {} });
   const now = new Date();
   const start = new Date(date);

@@ -31,7 +31,7 @@ La app la usan los dos desde su móvil, uno con Android (instalada desde Chrome)
 - F5. Completar o reabrir una tarea con un toque en su casilla, con opción de deshacer.
 
 ### Añadir
-- F6. Botón «+» siempre visible, que abre directamente el formulario completo. Empieza como evento y arriba se cambia a tarea. Lo mismo al tocar «+ Añadir» en un día o un hueco del calendario, con ese día (y esa hora) ya puestos.
+- F6. Botón «+» siempre visible, que abre directamente el formulario completo. Empieza como evento, o como tarea desde la pestaña Tareas, y arriba se cambia. Lo mismo al tocar «+ Añadir» en un día o un hueco del calendario, con ese día (y esa hora) ya puestos.
 - F9. Formulario con:
   - tipo (evento o tarea), título, todo el día o con hora, inicio y fin;
   - repetición (diaria, semanal eligiendo días, mensual o anual; sin fin, hasta una fecha o un número de veces);

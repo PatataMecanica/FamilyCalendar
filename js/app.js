@@ -222,7 +222,7 @@ function startApp() {
   started = true;
   document.querySelectorAll('#nav button[data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   bus.addEventListener('busy', (e) => { if (busy !== e.detail) { busy = e.detail; topActions(); } });
-  $('fab').addEventListener('click', () => openNew());
+  $('fab').addEventListener('click', () => openNew({ type: tab === 'tasks' ? 'task' : 'event' }));
   initTabSwipe({
     app: $('app'), tabs: TABS, current: () => tab,
     blocked: () => sheetsOpen() || !$('gate').hidden,
