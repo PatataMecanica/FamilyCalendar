@@ -7,9 +7,10 @@ import { openDetail, toggleDoneWithUndo } from '../ui/editor.js';
  * Fila de evento o tarea (va dentro de una .list).
  * Evento: hora + barrita de su color. Tarea: casilla redonda de su color.
  * @param {import('../model.js').Item} it
- * @param {{day?:Date, now?:Date, showDate?:boolean}} o
+ * @param {{day?:Date, now?:Date, showDate?:boolean, dateFmt?:(d:Date)=>string}} o
+ *   showDate: muestra la fecha (con dateFmt, por defecto «20 nov»)
  */
-export function itemCard(it, { day = null, now = new Date(), showDate = false } = {}) {
+export function itemCard(it, { day = null, now = new Date(), showDate = false, dateFmt = fmtShortDate } = {}) {
   const c = colorHex(it.colorId);
   const meta = [];
   if (it.location) meta.push(h('span', icon('pin', 'xs'), it.location));
@@ -23,8 +24,8 @@ export function itemCard(it, { day = null, now = new Date(), showDate = false } 
     if (overdue) {
       const n = daysBetween(it.start, now);
       due = n <= 0 ? `vencida a las ${toHM(it.end)}` : n === 1 ? 'venció ayer' : `venció hace ${n} días`;
-    } else if (!it.allDay) due = toHM(it.start);
-    else if (showDate) due = fmtShortDate(it.start);
+    } else if (showDate) due = it.allDay ? dateFmt(it.start) : `${dateFmt(it.start)} · ${toHM(it.start)}`;
+    else if (!it.allDay) due = toHM(it.start);
     const check = h('button.ck', {
       type: 'button',
       'aria-label': it.done ? `Marcar "${it.title}" como pendiente` : `Completar "${it.title}"`,
@@ -55,7 +56,7 @@ export function itemCard(it, { day = null, now = new Date(), showDate = false } 
   }
   const isPast = day && sameDay(day, now) && !it.allDay && it.end < now;
   const isNow = !it.allDay && it.start <= now && it.end > now;
-  if (showDate) meta.unshift(h('span', fmtShortDate(it.start)));
+  if (showDate) meta.unshift(h('span', dateFmt(it.start)));
   return h(`button.row${isPast ? '.past' : ''}${isNow ? '.now' : ''}`, { '--c': c, type: 'button', onclick: () => openDetail(it) },
     tm,
     h('span.bar'),

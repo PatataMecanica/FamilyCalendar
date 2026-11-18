@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { parseQuickAdd } from '../js/quickadd.js';
 import { buildRecurrence, parseRecurrence, describeRecurrence } from '../js/recurrence.js';
 import { toGoogle, fromGoogle, taskDonePatch } from '../js/model.js';
+import { groupTasks, attentionCount } from '../js/tasks.js';
 
 // "Ahora": martes 17 nov 2026, 10:00
 const NOW = new Date(2026, 10, 17, 10, 0);
@@ -148,4 +149,37 @@ test('modelo: tarea ida y vuelta', () => {
   const p = taskDonePatch(it, true);
   assert.equal(p.summary, '☑ Pagar luz');
   assert.equal(p.extendedProperties.shared.fcDone, '1');
+});
+
+// ---------- Pestaña Tareas ----------
+
+test('agrupa tareas: vencidas, hoy, semana, más adelante y hechas', () => {
+  // NOW = martes 17 nov 2026 10:00 → la semana acaba el domingo 22
+  const t = (id, y, m, d, extra = {}) => ({
+    id, type: 'task', title: id, done: false, allDay: true,
+    start: new Date(y, m - 1, d), end: new Date(y, m - 1, d + 1), ...extra,
+  });
+  const items = [
+    t('vencida', 2026, 11, 15),
+    t('hoy', 2026, 11, 17),
+    { ...t('hoy-hora', 2026, 11, 17), allDay: false, start: new Date(2026, 10, 17, 18), end: new Date(2026, 10, 17, 18, 30) },
+    { ...t('hoy-pasada', 2026, 11, 17), allDay: false, start: new Date(2026, 10, 17, 8), end: new Date(2026, 10, 17, 8, 30) },
+    t('domingo', 2026, 11, 22),
+    t('lunes', 2026, 11, 23),
+    t('serie-1', 2026, 11, 19, { recurringEventId: 'S' }),
+    t('serie-2', 2026, 11, 26, { recurringEventId: 'S' }),
+    t('serie-vencida', 2026, 11, 12, { recurringEventId: 'S' }),
+    t('hecha-reciente', 2026, 11, 10, { done: true }),
+    t('hecha-antigua', 2026, 9, 1, { done: true }),
+    t('hecha-futura', 2026, 12, 1, { done: true }),
+    { ...t('evento', 2026, 11, 17), type: 'event' },
+  ];
+  const g = groupTasks(items, NOW);
+  const ids = (l) => l.map((i) => i.id);
+  assert.deepEqual(ids(g.overdue), ['serie-vencida', 'vencida', 'hoy-pasada']);
+  assert.deepEqual(ids(g.today), ['hoy', 'hoy-hora']);
+  assert.deepEqual(ids(g.week), ['serie-1', 'domingo']);
+  assert.deepEqual(ids(g.later), ['lunes']);
+  assert.deepEqual(ids(g.done), ['hecha-futura', 'hecha-reciente']);
+  assert.equal(attentionCount(g), 5);
 });

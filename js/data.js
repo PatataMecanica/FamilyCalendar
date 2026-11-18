@@ -5,6 +5,7 @@ import { fromGoogle, toGoogle, taskDonePatch, sortItems, stripNulls } from './mo
 import { addDays, startOfDay } from './dates.js';
 import { AuthError } from './api.js';
 import { markApplied } from './reminders-sync.js';
+import { TASKS_PAST_DAYS, TASKS_FUTURE_DAYS } from './tasks.js';
 
 export const state = {
   api: null,
@@ -93,6 +94,28 @@ const stripRaw = (e) => ({
   location: e.location, description: e.description, colorId: e.colorId, reminders: e.reminders,
   extendedProperties: e.extendedProperties, recurrence: e.recurrence, status: e.status,
 });
+
+/** Todas las tareas de la pestaña «Tareas» (90 días atrás, un año adelante) */
+export async function fetchTasks({ force = false } = {}) {
+  const hit = cache.get('tasks');
+  if (!force && hit && Date.now() - hit.t < TTL) return hit.items;
+  const today = startOfDay(new Date());
+  const start = addDays(today, -TASKS_PAST_DAYS), end = addDays(today, TASKS_FUTURE_DAYS);
+  try {
+    const raw = await guard(() => state.api.listEvents(state.calId, { timeMin: start, timeMax: end, shared: ['fcType=task'] }));
+    const items = toItems(raw).filter((i) => i.type === 'task');
+    cache.set('tasks', { t: Date.now(), items });
+    return items;
+  } catch (e) {
+    if (e instanceof AuthError) throw e;
+    const off = store.get(`offline:${state.calId}`);
+    if (off) {
+      emit('offline', true);
+      return toItems(off.raw).filter((i) => i.type === 'task');
+    }
+    throw e;
+  }
+}
 
 export async function search(q) {
   const now = new Date();

@@ -287,6 +287,15 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 #nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: var(--ink-3); font-size: 11px; }
 #nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 #nav button.on { color: var(--ink); font-weight: 600; }
+#nav button[data-tab] { position: relative; }
+#nav .badge {
+  position: absolute; top: 1px; left: calc(50% + 5px);
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px;
+  background: var(--accent); color: var(--on-accent); box-shadow: 0 0 0 2px var(--surface);
+  font: 600 11px/18px var(--sans); text-align: center;
+}
+#nav .badge.late { background: var(--danger); color: #fff; }
+#nav .badge[hidden] { display: none; }
 #nav #fab { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--on-accent); justify-content: center; margin: -22px auto 0; box-shadow: var(--fab-shadow); }
 #nav #fab svg { width: 24px; height: 24px; stroke-width: 2; }
 #nav #fab:active { transform: scale(.94); }
@@ -365,8 +374,9 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 .calbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 18px 0 14px; }
 .calbar h2 { font: 500 22px/1.15 var(--serif); }
 .calbar h2:first-letter { text-transform: uppercase; }
-.calbar h2 small { font: 400 13px var(--sans); color: var(--ink-3); margin-left: 6px; }
+.calbar h2 small { font: 400 13px var(--sans); color: var(--ink-3); margin-left: 6px; white-space: nowrap; display: inline-block; }
 .calbar .nav { display: flex; gap: 8px; }
+.calbar .nav .find { margin-right: 4px; }
 .calbar .nav button { width: 42px; height: 42px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink-2); display: grid; place-items: center; }
 .cal-wrap { touch-action: pan-y; }
 .slide-l { animation: slide-l .26s cubic-bezier(.2, .8, .2, 1); }
@@ -419,8 +429,16 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 .tg-now { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--now); z-index: 3; pointer-events: none; }
 .tg-now::before { content: ''; position: absolute; left: -4px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: var(--now); }
 
-/* ---------- buscar ---------- */
-.search { width: 100%; border: 0; background: var(--surface); border-radius: 99px; padding: 13px 20px; margin-bottom: 4px; box-shadow: var(--shadow); outline: none; font-size: 16px; }
+/* ---------- buscar (hoja que se abre con la lupa de Calendario) ---------- */
+.search { width: 100%; border: 0; background: var(--surface-2); border-radius: 99px; padding: 13px 20px; margin-bottom: 4px; outline: none; font-size: 16px; color: var(--ink); }
+.search-results .section:first-child { margin-top: 18px; }
+.search-results > .empty, .search-results > .spinner { margin-top: 18px; }
+
+/* ---------- tareas ---------- */
+.task-add { margin-top: 6px; }
+.task-add .field { background: var(--surface); box-shadow: var(--shadow); }
+.section.late h2 { color: var(--danger); }
+.section .toggle { font-size: 13.5px; font-weight: 500; color: var(--accent); padding: 4px 2px; }
 
 /* ---------- ajustes ---------- */
 .menu { padding: 4px 0; }

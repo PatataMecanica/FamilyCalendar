@@ -127,6 +127,10 @@ function seed() {
     timed('Cine: estreno', at(6, 22, 0), 120, { colorId: '3' }),
     timed('Compra semanal', at(5, 11, 0), 60, { colorId: '5', recurrence: ['RRULE:FREQ=WEEKLY'] }),
     task('Renovar DNI', 12, false, { colorId: '8' }),
+    task('Sacar el reciclaje', 1, false, { colorId: '2', recurrence: ['RRULE:FREQ=WEEKLY'] }),
+    task('Pedir cita revisión caldera', 5, false),
+    task('Declaración de la renta', 40, false, { colorId: '11' }),
+    task('Pagar comunidad', -6, true, { colorId: '6' }),
   ].forEach((e) => { const id = `demo${seq++}`; masters.set(id, { id, status: 'confirmed', ...e }); });
 }
 seed();
