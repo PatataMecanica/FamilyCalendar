@@ -339,16 +339,6 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 [data-style="neon"] .grp { font-weight: 600; }
 [data-style="retro"] .grp { font-weight: 600; }
 
-/* alta rápida (pestaña Tareas) */
-.quick { position: relative; }
-.quick .field { padding-right: 58px; font-size: 18px; min-height: 56px; border-radius: 18px; }
-.quick .go { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); }
-.quick .go:disabled { background: var(--surface-2); color: var(--ink-3); }
-.preview { margin-top: 8px; padding: 10px 14px; min-height: 42px; border-radius: 14px; background: var(--surface-2); font-size: 14px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
-.preview b { color: var(--ink); font-weight: 500; }
-.preview .k { font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
-.preview.hint { color: var(--ink-3); font-size: 13.5px; }
-
 /* detalle */
 .detail { display: flex; gap: 14px; }
 .detail .bar { width: 5px; border-radius: 3px; background: var(--c); flex: none; }
@@ -426,8 +416,6 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 .search-results > .empty, .search-results > .spinner { margin-top: 18px; }
 
 /* ---------- tareas ---------- */
-.task-add { margin-top: 6px; }
-.task-add .field { background: var(--surface); box-shadow: var(--shadow); }
 .section.late h2 { color: var(--danger); }
 .section .toggle { font-size: 13.5px; font-weight: 500; color: var(--accent); padding: 4px 2px; }
 

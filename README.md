@@ -20,7 +20,6 @@ Más documentación:
 - **Formulario**: evento o tarea, todo el día, repetición (diaria, semanal por días, mensual o anual, con fin opcional), hasta 5 avisos, 11 colores, ubicación y notas.
 - **Avisos «Para los dos»**: en Google los avisos son personales. La app los guarda en el evento y los aplica también a la cuenta de la otra persona cuando abre la app.
 - **Tareas**: todas las pendientes en una lista, agrupadas en Vencidas, Hoy, Esta semana y Más adelante, más las hechas de los últimos 30 días (plegadas).
-  - **Alta rápida** en español arriba: «pagar la luz el 25», «llamar al taller mañana 18h». Sin fecha, la tarea queda para hoy.
   - De una tarea que se repite solo se ve la próxima vez.
   - El icono de la barra lleva un contador de vencidas y pendientes de hoy.
 - **Buscar**: la lupa de Calendario busca por título, lugar o notas.
@@ -63,14 +62,14 @@ Al cambiar estilos, usar las variables en lugar de colores sueltos. Revisar los 
 - HTML, CSS y JavaScript (módulos ES) sin dependencias ni compilación. GitHub Pages sirve el repositorio tal cual.
 - Inicio de sesión OAuth 2.0 por redirección (`response_type=token`), fiable en apps instaladas de iOS y Android.
 - Google Calendar API v3 por REST. Las tareas son eventos con `extendedProperties.shared.fcType = task`.
-- Pruebas: `npm test`. Usan `node:test` sin dependencias y cubren el intérprete de alta rápida, la recurrencia, el modelo de datos y la agrupación de tareas.
+- Pruebas: `npm test`. Usan `node:test` sin dependencias y cubren la recurrencia, el modelo de datos y la agrupación de tareas.
 
 Estructura detallada y reglas de desarrollo en [CLAUDE.md](CLAUDE.md).
 
 ```
 index.html  manifest.webmanifest  sw.js
 css/   styles
-js/    boot-design · app · auth · api · data · model · tasks · dates · quickadd · recurrence · reminders-sync · store · demo
+js/    boot-design · app · auth · api · data · model · tasks · dates · recurrence · reminders-sync · store · demo
 js/ui/     dom · sheet · toast · editor · search · swipe
 js/views/  upcoming · calendar · tasks · settings · common
 ```

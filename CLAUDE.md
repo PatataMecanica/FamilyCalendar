@@ -20,7 +20,6 @@ App de calendario compartido para dos personas, una con Android y otra con iPhon
 | `js/data.js` | Estado compartido (`state`), bus de eventos, caché de rangos, altas, ediciones, borrados y copia sin conexión |
 | `js/model.js` | Conversión entre eventos de Google y elementos de la app (`fromGoogle` / `toGoogle`), colores y avisos predefinidos |
 | `js/reminders-sync.js` | Avisos «Para los dos» |
-| `js/quickadd.js` | Intérprete del alta rápida en español (pestaña Tareas) |
 | `js/tasks.js` | Agrupación de la pestaña Tareas (sin DOM, con pruebas) |
 | `js/recurrence.js` | Reglas `RRULE`: construir, leer y describir |
 | `js/dates.js` | Fechas en hora local, semana empezando en lunes, nombres en español |
@@ -39,7 +38,7 @@ No hay dependencias ni compilación. JavaScript (módulos ES) y CSS sin framewor
 
 ```bash
 python3 -m http.server 8080   # y abrir http://localhost:8080/?demo=1
-npm test                      # intérprete de alta rápida, recurrencia, modelo y agrupación de tareas
+npm test                      # recurrencia, modelo y agrupación de tareas
 node --check js/app.js        # comprobación de sintaxis (repetir por archivo)
 ```
 
@@ -54,7 +53,7 @@ node --check js/app.js        # comprobación de sintaxis (repetir por archivo)
     - responder a `accounts.google.com` con una redirección a `redirect_uri#access_token=…&state=…`;
     - simular `www.googleapis.com/calendar/v3/...`.
 - **Para revisar el diseño sin pulsar nada**: poner en el `localStorage`, antes de cargar, `sa-cal:estilo` (`"pastel"`, `"neon"` o `"retro"`) y `sa-cal:tema` (`"auto"`, `"light"` o `"dark"`). Son cadenas JSON, con comillas.
-- **Cambios en `js/quickadd.js`**: añadir siempre casos a `tests/quickadd.test.mjs`. Las pruebas fijan «ahora» en el martes 17 de noviembre de 2026 a las 10:00.
+- **Pruebas** (`tests/app.test.mjs`): fijan «ahora» en el martes 17 de noviembre de 2026 a las 10:00. Al cambiar `js/tasks.js`, `js/model.js` o `js/recurrence.js`, añadir casos.
 
 ## Despliegue
 

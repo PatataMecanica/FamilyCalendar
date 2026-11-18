@@ -7,7 +7,7 @@ import { reminderLabel, REMINDER_PRESETS_TIMED, REMINDER_PRESETS_ALLDAY } from '
 import { defaultReminders } from '../ui/editor.js';
 import { signOut } from '../auth.js';
 
-export const APP_VERSION = '1.4.0';
+export const APP_VERSION = '1.5.0';
 
 // Estilos y modos, igual que en Gastos S&A
 export const ESTILOS = { pastel: 'Pastel', neon: 'Neón', retro: 'Ochentas' };
