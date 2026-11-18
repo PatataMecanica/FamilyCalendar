@@ -71,7 +71,7 @@
 
 /* ---------- base ---------- */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden; } /* la página se sale por un lado al deslizar entre pestañas */
 body {
   margin: 0;
   background: var(--bg);
@@ -103,6 +103,10 @@ svg.i.xs { width: 13px; height: 13px; stroke-width: 1.9; }
   padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 112px);
   min-height: 100dvh;
 }
+/* El desplazamiento vertical es del navegador; el gesto horizontal lo lleva js/ui/swipe.js. */
+#app { touch-action: pan-y pinch-zoom; }
+/* pestaña vecina mientras se desliza: a pantalla completa, por debajo de la barra */
+.peek { position: fixed; top: 0; left: 0; height: 100%; overflow: hidden; pointer-events: none; z-index: 1; will-change: transform; }
 
 /* ---------- cabecera ---------- */
 .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
@@ -294,7 +298,7 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
   background: var(--accent); color: var(--on-accent); box-shadow: 0 0 0 2px var(--surface);
   font: 600 11px/18px var(--sans); text-align: center;
 }
-#nav .badge.late { background: var(--danger); color: #fff; }
+#nav .badge.late { background: var(--danger); color: var(--surface); }
 #nav .badge[hidden] { display: none; }
 #nav #fab { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--on-accent); justify-content: center; margin: -22px auto 0; box-shadow: var(--fab-shadow); }
 #nav #fab svg { width: 24px; height: 24px; stroke-width: 2; }
@@ -378,7 +382,6 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 .calbar .nav { display: flex; gap: 8px; }
 .calbar .nav .find { margin-right: 4px; }
 .calbar .nav button { width: 42px; height: 42px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink-2); display: grid; place-items: center; }
-.cal-wrap { touch-action: pan-y; }
 .slide-l { animation: slide-l .26s cubic-bezier(.2, .8, .2, 1); }
 .slide-r { animation: slide-r .26s cubic-bezier(.2, .8, .2, 1); }
 @keyframes slide-l { from { transform: translateX(28px); opacity: 0; } }
