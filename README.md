@@ -5,6 +5,10 @@ Es una web instalable (PWA) para Android e iPhone, con el mismo diseño que Gast
 
 **Puesta en marcha → [SETUP.md](SETUP.md)** · Demo sin cuenta: añade `?demo=1` a la URL.
 
+Más documentación:
+- [REQUIREMENTS.md](REQUIREMENTS.md): qué hace la app y qué se dejó fuera.
+- [CLAUDE.md](CLAUDE.md): cómo está hecha y las reglas para cambiarla.
+
 ## Qué hace
 
 - **Próximos**: agenda de los próximos días, con eventos y tareas diferenciados:
@@ -58,6 +62,8 @@ Al cambiar estilos, usar las variables en lugar de colores sueltos. Revisar los 
 - Inicio de sesión OAuth 2.0 por redirección (`response_type=token`), fiable en apps instaladas de iOS y Android.
 - Google Calendar API v3 por REST. Las tareas son eventos con `extendedProperties.shared.fcType = task`.
 - Pruebas: `npm test`. Usan `node:test` sin dependencias y cubren el intérprete de alta rápida, la recurrencia y el modelo de datos.
+
+Estructura detallada y reglas de desarrollo en [CLAUDE.md](CLAUDE.md).
 
 ```
 index.html  manifest.webmanifest  sw.js
