@@ -10,6 +10,7 @@ import {
 import { itemCard, emptyState, list as listCard } from './common.js';
 import { openDetail } from '../ui/editor.js';
 import { openQuick } from '../ui/quick.js';
+import { openSearch } from '../ui/search.js';
 import { store } from '../store.js';
 
 const view = {
@@ -61,6 +62,7 @@ export async function renderCalendar(root, rerender) {
     h('div.calbar',
       h('h2', title, h('small', sub)),
       h('div.nav',
+        h('button.find', { type: 'button', 'aria-label': 'Buscar', onclick: openSearch }, icon('search', 'sm')),
         h('button', { type: 'button', 'aria-label': 'Anterior', onclick: () => { shiftPeriod(-1); rerender(); } }, icon('left', 'sm')),
         h('button', { type: 'button', 'aria-label': 'Siguiente', onclick: () => { shiftPeriod(1); rerender(); } }, icon('right', 'sm')),
       ),

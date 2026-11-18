@@ -18,7 +18,11 @@ Es una web instalable (PWA) para Android e iPhone, con el mismo diseño que Gast
   - **Formulario completo**.
 - **Formulario**: evento o tarea, todo el día, repetición (diaria, semanal por días, mensual o anual, con fin opcional), hasta 5 avisos, 11 colores, ubicación y notas.
 - **Avisos «Para los dos»**: en Google los avisos son personales. La app los guarda en el evento y los aplica también a la cuenta de la otra persona cuando abre la app.
-- **Buscar**: por título, lugar o notas.
+- **Tareas**: todas las pendientes en una lista, agrupadas en Vencidas, Hoy, Esta semana y Más adelante, más las hechas de los últimos 30 días (plegadas).
+  - **Alta rápida** arriba: «pagar la luz el 25». Sin fecha, la tarea queda para hoy.
+  - De una tarea que se repite solo se ve la próxima vez.
+  - El icono de la barra lleva un contador de vencidas y pendientes de hoy.
+- **Buscar**: la lupa de Calendario busca por título, lugar o notas.
 - **Ajustes**: estilo y modo, elegir calendario, **enlace de configuración** para el otro móvil, plantillas y avisos por defecto.
 - **Sin conexión**: la app abre al instante y muestra la última copia de las próximas semanas, en solo lectura.
 
@@ -57,14 +61,14 @@ Al cambiar estilos, usar las variables en lugar de colores sueltos. Revisar los 
 - HTML, CSS y JavaScript (módulos ES) sin dependencias ni compilación. GitHub Pages sirve el repositorio tal cual.
 - Inicio de sesión OAuth 2.0 por redirección (`response_type=token`), fiable en apps instaladas de iOS y Android.
 - Google Calendar API v3 por REST. Las tareas son eventos con `extendedProperties.shared.fcType = task`.
-- Pruebas: `npm test`. Usan `node:test` sin dependencias y cubren el intérprete de alta rápida, la recurrencia y el modelo de datos.
+- Pruebas: `npm test`. Usan `node:test` sin dependencias y cubren el intérprete de alta rápida, la recurrencia, el modelo de datos y la agrupación de tareas.
 
 ```
 index.html  manifest.webmanifest  sw.js
 css/   styles
-js/    boot-design · app · auth · api · data · model · dates · quickadd · recurrence · reminders-sync · templates · store · demo
-js/ui/     dom · sheet · toast · editor · quick
-js/views/  upcoming · calendar · search · settings · common
+js/    boot-design · app · auth · api · data · model · tasks · dates · quickadd · recurrence · reminders-sync · templates · store · demo
+js/ui/     dom · sheet · toast · editor · quick · search
+js/views/  upcoming · calendar · tasks · settings · common
 ```
 
 Tipografías: Fraunces, DM Sans y Chakra Petch, incluidas en el repo (licencia SIL OFL, ver `fonts/LICENSE-OFL.txt`).

@@ -6,20 +6,21 @@ import {
   handleRedirect, getToken, signIn, canTrySilent, isConfigured, redirectUri,
 } from './auth.js';
 import { googleApi, AuthError } from './api.js';
-import { state, bus, invalidate, saveOffline, toItems } from './data.js';
+import { state, bus, invalidate, saveOffline, toItems, fetchTasks } from './data.js';
+import { groupTasks, attentionCount } from './tasks.js';
 import { syncSharedReminders } from './reminders-sync.js';
 import { renderUpcoming, resetUpcoming } from './views/upcoming.js';
 import { renderCalendar, goToday } from './views/calendar.js';
-import { renderSearch } from './views/search.js';
+import { renderTasks } from './views/tasks.js';
 import { renderSettings, applyDesign, consumeSetupLink } from './views/settings.js';
 import { openQuick } from './ui/quick.js';
 import { toast } from './ui/toast.js';
 import { sheetsOpen, closeAllSheets } from './ui/sheet.js';
 
 const $ = (id) => document.getElementById(id);
-const TITLES = { upcoming: 'Próximos', calendar: 'Calendario', search: 'Buscar', settings: 'Ajustes' };
+const TITLES = { upcoming: 'Próximos', calendar: 'Calendario', tasks: 'Tareas', settings: 'Ajustes' };
 let tab = store.get('tab', 'upcoming');
-if (tab === 'search') tab = 'upcoming';
+if (!TITLES[tab]) tab = 'upcoming'; // p. ej. la antigua pestaña «Buscar»
 let lastRender = 0;
 
 applyDesign();
@@ -135,6 +136,20 @@ function topActions() {
   box.append(syncPill());
 }
 
+// Contador en la pestaña Tareas: vencidas + pendientes de hoy
+function setBadge(groups) {
+  const b = $('taskBadge');
+  const n = attentionCount(groups);
+  b.textContent = n > 99 ? '99+' : String(n);
+  b.hidden = n === 0;
+  b.classList.toggle('late', groups.overdue.length > 0);
+  const btn = b.closest('button');
+  btn.setAttribute('aria-label', n ? `Tareas, ${n} para hoy o vencidas` : 'Tareas');
+}
+async function updateBadge() {
+  try { setBadge(groupTasks(await fetchTasks())); } catch { /* no crítico */ }
+}
+
 let renderSeq = 0;
 async function render() {
   const root = $('view');
@@ -144,9 +159,10 @@ async function render() {
   try {
     if (tab === 'upcoming') await renderUpcoming(root);
     else if (tab === 'calendar') await renderCalendar(root, render);
-    else if (tab === 'search') renderSearch(root);
+    else if (tab === 'tasks') { setBadge(await renderTasks(root)); lastRender = Date.now(); return; }
     else renderSettings(root, render);
     lastRender = Date.now();
+    updateBadge();
   } catch (e) {
     if (my !== renderSeq) return;
     if (e instanceof AuthError) return;
@@ -196,7 +212,7 @@ function startApp() {
     if (Date.now() - lastRender > 60_000 && !sheetsOpen()) { invalidate(); render(); backgroundSync(); }
   });
   // Re-dibuja a medianoche / cada 5 min para mantener "ahora" y "hoy" al día
-  setInterval(() => { if (!sheetsOpen() && document.visibilityState === 'visible' && (tab === 'upcoming' || tab === 'calendar')) render(); }, 5 * 60_000);
+  setInterval(() => { if (!sheetsOpen() && document.visibilityState === 'visible' && (tab === 'upcoming' || tab === 'calendar' || tab === 'tasks')) render(); }, 5 * 60_000);
 }
 
 // ---------------- Arranque ----------------
