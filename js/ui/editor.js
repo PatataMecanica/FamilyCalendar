@@ -7,7 +7,7 @@ import {
   COLORS, colorHex, colorName, REMINDER_PRESETS_TIMED, REMINDER_PRESETS_ALLDAY, reminderLabel,
 } from '../model.js';
 import { parseRecurrence, describeRecurrence, DAY_ES } from '../recurrence.js';
-import { toISODate, fromISODate, toHM, addDays, fmtLongDate, weekdayMon, cap } from '../dates.js';
+import { toISODate, fromISODate, toHM, addDays, fmtLongDate, weekdayMon, cap, sameDay } from '../dates.js';
 import { createItem, updateItem, deleteItem, toggleDone, restore, state } from '../data.js';
 import { store } from '../store.js';
 
@@ -30,6 +30,20 @@ export function newDraft(over = {}) {
   };
   if (d.allDay) { d.start = new Date(d.start); d.start.setHours(0, 0, 0, 0); if (!over.end) d.end = new Date(d.start); }
   return d;
+}
+
+/**
+ * Formulario completo para algo nuevo (botón «+», «+ Añadir» de un día o un hueco del calendario).
+ * Empieza como evento; arriba se cambia a tarea.
+ * @param {{date?:Date, hour?:number}} ctx  día y hora preseleccionados
+ */
+export function openNew({ date = null, hour = null } = {}) {
+  if (!date) return openEditor({ draft: {} });
+  const now = new Date();
+  const start = new Date(date);
+  // Sin hora: la siguiente en punto si es hoy; si no, a las 10
+  start.setHours(hour ?? (sameDay(date, now) ? Math.min(now.getHours() + 1, 23) : 10), 0, 0, 0);
+  return openEditor({ draft: { start, end: new Date(start.getTime() + 3600000) } });
 }
 
 function draftFromItem(it) {

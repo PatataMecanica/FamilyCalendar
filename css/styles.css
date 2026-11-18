@@ -339,7 +339,7 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 [data-style="neon"] .grp { font-weight: 600; }
 [data-style="retro"] .grp { font-weight: 600; }
 
-/* nuevo: alta rápida, plantillas, tipo */
+/* alta rápida (pestaña Tareas) */
 .quick { position: relative; }
 .quick .field { padding-right: 58px; font-size: 18px; min-height: 56px; border-radius: 18px; }
 .quick .go { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); }
@@ -348,18 +348,6 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 .preview b { color: var(--ink); font-weight: 500; }
 .preview .k { font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
 .preview.hint { color: var(--ink-3); font-size: 13.5px; }
-.tpls { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; margin: 0 -2px; scrollbar-width: none; }
-.tpls::-webkit-scrollbar { display: none; }
-.tpl { flex: none; min-width: 112px; padding: 12px 14px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); text-align: left; display: flex; flex-direction: column; gap: 6px; }
-.tpl .nm { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-.tpl .nm i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
-.tpl .sub { font-size: 12.5px; color: var(--ink-3); }
-.types { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.type { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); text-align: left; }
-.type.task { background: var(--surface-2); box-shadow: none; }
-.type .nm { font: 500 19px var(--serif); margin-top: 6px; }
-.type small { color: var(--ink-3); font-size: 13px; }
-.type svg { color: var(--accent); }
 
 /* detalle */
 .detail { display: flex; gap: 14px; }
@@ -744,8 +732,7 @@ input[type="date"].field, input[type="time"].field { min-width: 0; max-width: 10
 [data-style="retro"] .tg-head .hc.today .dn { box-shadow: 0 0 0 2px var(--edge); }
 [data-style="retro"] .month .cell.sel { box-shadow: inset 0 0 0 2px var(--edge); background: var(--butter); }
 [data-style="retro"][data-theme="dark"] .month .cell.sel { background: var(--surface-2); }
-[data-style="retro"] .tpl, [data-style="retro"] .type, [data-style="retro"] .cal-option { box-shadow: 0 0 0 2px var(--edge), 4px 4px 0 2px var(--pop-2); }
-[data-style="retro"] .type.task { box-shadow: 0 0 0 2px var(--edge), 4px 4px 0 2px var(--pop-3); }
+[data-style="retro"] .cal-option { box-shadow: 0 0 0 2px var(--edge), 4px 4px 0 2px var(--pop-2); }
 [data-style="retro"] #nav { border-radius: 18px; box-shadow: 0 0 0 2px var(--edge), 4px 4px 0 2px var(--pop-2); }
 [data-style="retro"] #nav button.on { color: var(--accent); }
 [data-style="retro"] #nav #fab { background: var(--fab); color: var(--on-fab); border-radius: 16px; }

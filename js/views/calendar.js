@@ -9,8 +9,7 @@ import {
   MONTHS, MONTHS_SHORT, DAYS_SHORT, DAYS_LONG, isoWeek, fmtDayLabel,
 } from '../dates.js';
 import { itemCard, emptyState, list as listCard } from './common.js';
-import { openDetail } from '../ui/editor.js';
-import { openQuick } from '../ui/quick.js';
+import { openDetail, openNew } from '../ui/editor.js';
 import { openSearch } from '../ui/search.js';
 import { store } from '../store.js';
 
@@ -154,7 +153,7 @@ function renderTimeGrid(wrap, items, start, cols, rerender) {
       const rect = col.getBoundingClientRect();
       const hourPx = rect.height / 24;
       const hr = Math.min(23, Math.max(0, Math.floor((e.clientY - rect.top) / hourPx)));
-      openQuick({ date: d, hour: hr });
+      openNew({ date: d, hour: hr });
     });
     const timed = items.filter((it) => !it.allDay && occursOn(it, d)).sort((a, b) => a.start - b.start || b.end - a.end);
     layoutColumns(timed, d).forEach(({ it, top, height, lane, lanes }) => {
@@ -195,7 +194,7 @@ function renderTimeGrid(wrap, items, start, cols, rerender) {
 
 function dayHeader(day, title, isToday) {
   return h(`div.section${isToday ? '.today' : ''}`, h('h2', title),
-    h('button.pill', { type: 'button', onclick: () => openQuick({ date: day }) }, '+ Añadir'));
+    h('button.pill', { type: 'button', onclick: () => openNew({ date: day }) }, '+ Añadir'));
 }
 
 /** Reparte eventos solapados en carriles */

@@ -16,18 +16,15 @@ Más documentación:
   - **Tareas**: casilla redonda de su color y fondo suave, para completarlas al instante, con opción de deshacer.
   - **Tareas vencidas**: aparecen arriba, en una tarjeta destacada.
 - **Calendario**: vistas Mes, Semana y Día. El periodo se cambia con las flechas de anterior y siguiente, y tocar un hueco crea algo a esa hora.
-- **Botón +**:
-  - **Alta rápida** en español: «cena con Laura viernes 21h», «tarea pagar seguro el 25», «gimnasio de 18 a 19:30».
-  - **Plantillas** de un toque.
-  - **Formulario completo**.
+- **Botón +**: abre directamente el formulario completo, como evento; arriba se cambia a tarea.
 - **Formulario**: evento o tarea, todo el día, repetición (diaria, semanal por días, mensual o anual, con fin opcional), hasta 5 avisos, 11 colores, ubicación y notas.
 - **Avisos «Para los dos»**: en Google los avisos son personales. La app los guarda en el evento y los aplica también a la cuenta de la otra persona cuando abre la app.
 - **Tareas**: todas las pendientes en una lista, agrupadas en Vencidas, Hoy, Esta semana y Más adelante, más las hechas de los últimos 30 días (plegadas).
-  - **Alta rápida** arriba: «pagar la luz el 25». Sin fecha, la tarea queda para hoy.
+  - **Alta rápida** en español arriba: «pagar la luz el 25», «llamar al taller mañana 18h». Sin fecha, la tarea queda para hoy.
   - De una tarea que se repite solo se ve la próxima vez.
   - El icono de la barra lleva un contador de vencidas y pendientes de hoy.
 - **Buscar**: la lupa de Calendario busca por título, lugar o notas.
-- **Ajustes**: estilo y modo, elegir calendario, **enlace de configuración** para el otro móvil, plantillas y avisos por defecto.
+- **Ajustes**: estilo y modo, elegir calendario, **enlace de configuración** para el otro móvil y avisos por defecto.
 - **Deslizar entre pestañas**: como en Gastos S&A, se pasa de una pestaña a la de al lado deslizando a izquierda o derecha. La vecina asoma mientras se arrastra.
 - **Sin conexión**: la app abre al instante y muestra la última copia de las próximas semanas, en solo lectura.
 
@@ -73,8 +70,8 @@ Estructura detallada y reglas de desarrollo en [CLAUDE.md](CLAUDE.md).
 ```
 index.html  manifest.webmanifest  sw.js
 css/   styles
-js/    boot-design · app · auth · api · data · model · tasks · dates · quickadd · recurrence · reminders-sync · templates · store · demo
-js/ui/     dom · sheet · toast · editor · quick · search · swipe
+js/    boot-design · app · auth · api · data · model · tasks · dates · quickadd · recurrence · reminders-sync · store · demo
+js/ui/     dom · sheet · toast · editor · search · swipe
 js/views/  upcoming · calendar · tasks · settings · common
 ```
 
