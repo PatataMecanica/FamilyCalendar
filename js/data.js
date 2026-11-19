@@ -1,7 +1,7 @@
 // Estado compartido y capa de datos (caché, altas, ediciones, borrados).
 
 import { store } from './store.js';
-import { fromGoogle, toGoogle, taskDonePatch, sortItems, stripNulls } from './model.js';
+import { fromGoogle, toGoogle, toPatch, taskDonePatch, sortItems, stripNulls } from './model.js';
 import { addDays, startOfDay } from './dates.js';
 import { AuthError } from './api.js';
 import { markApplied } from './reminders-sync.js';
@@ -145,10 +145,12 @@ export async function createItem(draft) {
 export async function updateItem(item, draft, scope = 'single') {
   const body = toGoogle(draft);
   let targetId = item.id;
+  let orig = item.raw || {};
   if (item.recurringEventId && scope === 'series') {
     targetId = item.recurringEventId;
     // Mantiene la fecha de inicio de la serie y aplica la nueva hora/duración
     const master = await guard(() => state.api.getEvent(state.calId, targetId));
+    orig = master;
     const m = fromGoogle(master);
     const s = new Date(m.start);
     if (!draft.allDay) s.setHours(draft.start.getHours(), draft.start.getMinutes(), 0, 0);
@@ -158,7 +160,7 @@ export async function updateItem(item, draft, scope = 'single') {
   } else if (item.recurringEventId) {
     delete body.recurrence; // una instancia no puede tener regla propia
   }
-  const ev = await guard(() => state.api.patchEvent(state.calId, targetId, body));
+  const ev = await guard(() => state.api.patchEvent(state.calId, targetId, toPatch(body, orig)));
   if (draft.remBoth) markApplied(targetId, body.extendedProperties.shared.fcRemV);
   changed();
   return ev;

@@ -1,6 +1,6 @@
 // Service worker: guarda la "carcasa" de la app para que abra al instante y sin conexión.
 // Las llamadas a Google (API y acceso) nunca se cachean.
-const VERSION = 'sa-cal-v1.6.0';
+const VERSION = 'sa-cal-v1.6.1';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/styles.css', 'js/boot-design.js',
