@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildRecurrence, parseRecurrence, describeRecurrence } from '../js/recurrence.js';
-import { toGoogle, fromGoogle, taskDonePatch } from '../js/model.js';
+import { toGoogle, fromGoogle, taskDonePatch, toPatch } from '../js/model.js';
 import { groupTasks, attentionCount } from '../js/tasks.js';
 
 // "Ahora": martes 17 nov 2026, 10:00
@@ -73,4 +73,55 @@ test('agrupa tareas: vencidas, hoy, semana, más adelante y hechas', () => {
   assert.deepEqual(ids(g.later), ['lunes']);
   assert.deepEqual(ids(g.done), ['hecha-futura', 'hecha-reciente']);
   assert.equal(attentionCount(g), 5);
+});
+
+test('modelo: parche de edición sin nulos innecesarios', () => {
+  // Evento con hora creado por la app (sin color, sin repetición, sin fcDone)
+  const orig = {
+    id: 'e1', summary: 'Lavavajillas',
+    start: { dateTime: '2026-11-19T12:25:00+01:00', timeZone: 'Europe/Madrid' },
+    end: { dateTime: '2026-11-19T12:55:00+01:00', timeZone: 'Europe/Madrid' },
+    reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 60 }] },
+    extendedProperties: { shared: { fcType: 'event', fcRem: 'popup:60', fcRemBoth: '0' } },
+  };
+  const draft = {
+    type: 'event', title: 'Lavavajillas', allDay: false,
+    start: new Date(2026, 10, 19, 13, 25), end: new Date(2026, 10, 19, 13, 55),
+    reminders: [{ method: 'popup', minutes: 60 }], remBoth: false, colorId: '', recur: { freq: 'none' },
+  };
+  const p = toPatch(toGoogle(draft), orig);
+  const nulls = [];
+  (function walk(o, path) {
+    for (const [k, v] of Object.entries(o)) {
+      if (v === null) nulls.push(path + k);
+      else if (v && typeof v === 'object') walk(v, `${path}${k}.`);
+    }
+  })(p, '');
+  assert.deepEqual(nulls, []);
+  assert.equal(p.recurrence, undefined);
+  assert.equal(p.start.dateTime.slice(0, 16), '2026-11-19T13:25');
+  assert.ok(p.start.timeZone);
+  assert.equal(p.extendedProperties.shared.fcType, 'event');
+  assert.ok(!('fcDone' in p.extendedProperties.shared));
+
+  // Cambios que sí borran algo del original
+  const orig2 = {
+    ...orig, colorId: '5', recurrence: ['RRULE:FREQ=WEEKLY'],
+    start: { date: '2026-11-19' }, end: { date: '2026-11-20' },
+    extendedProperties: { shared: { fcType: 'task', fcDone: '0', fcRem: 'popup:60', fcRemBoth: '1', fcRemV: 'abc' } },
+  };
+  const p2 = toPatch(toGoogle({ ...draft, reminders: [] }), orig2);
+  assert.equal(p2.colorId, null);
+  assert.equal(p2.start.date, null);
+  assert.equal(p2.end.date, null);
+  assert.deepEqual(p2.recurrence, []);
+  assert.equal(p2.extendedProperties.shared.fcDone, '');
+  assert.equal(p2.extendedProperties.shared.fcRem, '');
+  assert.equal(p2.extendedProperties.shared.fcRemV, '');
+  assert.equal(p2.extendedProperties.shared.fcRemBoth, '0');
+
+  // De con hora a día completo
+  const p3 = toPatch(toGoogle({ ...draft, allDay: true }), orig);
+  assert.equal(p3.start.date, '2026-11-19');
+  assert.equal(p3.start.dateTime, null);
 });

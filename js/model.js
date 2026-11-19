@@ -207,6 +207,31 @@ export function reminderLabel(minutes, allDay) {
   return `${minutes} min antes`;
 }
 
+/**
+ * Convierte el recurso completo de `toGoogle` en el cuerpo de un PATCH.
+ * Google rechaza con «Required» algunos nulos, así que solo se borra lo que existe en el
+ * evento original (`orig`) y hace falta quitar: el color, la fecha o la hora al cambiar entre
+ * día completo y con hora, y la regla de repetición. Las propiedades compartidas que sobran
+ * se dejan vacías ('') en lugar de null. Un cambio de hora no lleva ningún nulo.
+ */
+export function toPatch(body, orig = {}) {
+  const out = stripNulls(body);
+  const has = (o, k) => !!o && o[k] !== undefined && o[k] !== null;
+  if (body.colorId == null && has(orig, 'colorId')) out.colorId = null;
+  for (const k of ['start', 'end']) {
+    if (!out[k]) continue;
+    if (out[k].dateTime && has(orig[k], 'date')) out[k].date = null;
+    if (out[k].date && has(orig[k], 'dateTime')) out[k].dateTime = null;
+  }
+  const sh = body.extendedProperties && body.extendedProperties.shared;
+  const origSh = (orig.extendedProperties && orig.extendedProperties.shared) || {};
+  if (sh) {
+    for (const [k, v] of Object.entries(sh)) if (v == null && has(origSh, k)) out.extendedProperties.shared[k] = '';
+  }
+  if (Array.isArray(out.recurrence) && !out.recurrence.length && !(orig.recurrence && orig.recurrence.length)) delete out.recurrence;
+  return out;
+}
+
 /** Quita claves con null (para inserciones; en PATCH los null sirven para borrar campos) */
 export function stripNulls(o) {
   if (Array.isArray(o)) return o.map(stripNulls);
